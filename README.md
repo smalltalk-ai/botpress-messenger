@@ -475,7 +475,9 @@ botpress-messenger verifies that requests really come from Facebook's servers by
 
 ### Community
 
-There's a [public chatroom](http://www.gitter.im/botpress/core) where you are welcome to join and ask any question and even help others.
+There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
+
+Get an invite and join us now! 👉[https://slack.botpress.io](https://slack.botpress.io)
 
 ### License
 
