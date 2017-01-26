@@ -123,6 +123,7 @@ module.exports = {
 
     bp.messenger = {}
     _.forIn(actions, (action, name) => {
+      bp.messenger[name] = action
       var sendName = name.replace(/^create/, 'send')
       bp.messenger[sendName] = Promise.method(function() {
         var msg = action.apply(this, arguments)

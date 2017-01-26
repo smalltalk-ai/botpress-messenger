@@ -254,6 +254,18 @@ Same signature as `Image` above.
 
 By using our module, you can send anything you want to your users on Messenger. In fact, this module support all types of messenge that are available on Facebook (text, images, videos, audios, webviews...).
 
+#### Creating actions without sending them
+
+Note that all the below actions are available under two format: `send___` and `create____`, the latter effectively only creating the middleware Event without piping (sending) it to the outgoing middleware. This is useful when combining libraries together (for example Botkit):
+
+```js
+  // This message won't be sent
+  const message = bp.messenger.createText(event.user.id, 'What is your name?')
+  // But `message` is a fully formed middleware event object, ready to be sent
+  // example using the botpress-botkit module
+  convo.ask(message, function(response, convo) { /* ... */ })
+```
+
 ### Text messages
 
 In code, it is simple to send a message text to a specific users ([facebook doc](https://developers.facebook.com/docs/messenger-platform/send-api-reference/text-message)).
