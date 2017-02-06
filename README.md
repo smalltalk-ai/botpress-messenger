@@ -1,6 +1,6 @@
 # botpress-messenger
 
-Official Facebook Messenger connector module for [Botpress](http://github.com/botpress/botpress). 
+Official Facebook Messenger connector module for [Botpress](http://github.com/botpress/botpress).
 
 This module has been build to accelerate and facilitate development of Messenger bots.
 
@@ -8,7 +8,7 @@ This module has been build to accelerate and facilitate development of Messenger
 
 Installing modules on Botpress is simple. By using the CLI, you only need to type this command in your terminal to add the messenger module to your bot.
 
-``` 
+```
 botpress install messenger
 ```
 
@@ -44,7 +44,7 @@ Acces token is available in Messenger section of developers. You need to copy it
 
   4.2. You don't have to setup webhook on Facebook developers page, this module automatically do it for you via Facebook API.
 
-##### 5. Validate and Connect! 
+##### 5. Validate and Connect!
 
 To see in details how to configure completly this module, videos are available on our Youtube Channel \(soon\).
 
@@ -54,7 +54,7 @@ To see in details how to configure completly this module, videos are available o
 ### Incoming
 
 * [Profile](#profile)
-* [Text messages](#text-messages) 
+* [Text messages](#text-messages)
 * [Postbacks](#postbacks)
 * [Attachments](#attachments)
 * [Referrals](#referrals)
@@ -65,20 +65,20 @@ To see in details how to configure completly this module, videos are available o
 
 ### Outgoing
 
-* [Text messages](#text-messages)
-* [Attachments](#attachments)
+* [Text messages](#text-messages-1)
+* [Attachments](#attachments-1)
 * [Templates](#templates)
-* [Quick replies](#quick-replies)
+* [Quick replies](#quick-replies-1)
 * [Automatic typing indicator](#automatic-typing-indicator)
-* [Postbacks](#postbacks)
-* [Referrals](#referrals)
+* [Postbacks](#postbacks-1)
+* [Referrals](#referrals-1)
 * [Display Get Started](#display-get-started)
 * [Greeting message](#greeting-message)
 * [Persistent menu](#persistent-menu)
 * [Automatically mark as read](#automatically-mark-as-read)
 * [Trusted domains](#trusted-domains)
-* [Save users in DB](#save-users-in-db)
 * [Automatic profile lookup](#automatic-profile-lookup)
+* [Save users in DB](#save-users-in-database)
 * [Webhook security check](#webhook-security-check)
 
 ## Reference
@@ -120,7 +120,7 @@ You can acces to all user's profile information by using this module. A cache ha
 }
 ```
 
-**Note**: All new users are automatically saved by this module in Botpress built-in database (`bp.db`). 
+**Note**: All new users are automatically saved by this module in Botpress built-in database (`bp.db`).
 
 #### Text messages
 
@@ -278,7 +278,7 @@ In code, it is simple to send a message text to a specific users ([facebook doc]
 
 2. ` text ` (_String_): Text message that will be send to user.
 
-3. ` options ` (_Object_): An object that may contain: 
+3. ` options ` (_Object_): An object that may contain:
 - `quick_replies` which is an array of quick replies to attach to the message
 - `typing` indicator. true for automatic timing calculation or a number in milliseconds (turns off automatically)
 - `waitDelivery` the returning Promise will resolve only when the message is delivered to the user
@@ -326,7 +326,7 @@ By using this function, you can send any type of attachment to your users ([face
 
 1. ` userId ` (_String_): Correspond to unique Messenger's recipient identifier
 
-2. ` type ` (_String_): Specific type of  attachment can be `'audio'`, `'file'`, `'image'` or `'video'` 
+2. ` type ` (_String_): Specific type of  attachment can be `'audio'`, `'file'`, `'image'` or `'video'`
 
 3. ` url ` (_String_): Correspond to specific url of the attachment that need to be sent.
 
@@ -391,7 +391,7 @@ bp.messenger.sendTemplate(userId, payload, { typing: 2000 })
 ```
 
 #### Quick replies
-By using `options` argument, you can easily add quick replies to text messages or attachments. 
+By using `options` argument, you can easily add quick replies to text messages or attachments.
 
 ```js
 const options = {
@@ -403,9 +403,9 @@ const options = {
         }
     ]
 }
-``` 
+```
 
-// Automatic typing indicator
+#### Automatic typing indicator
 
 As quick replies, you can add an automatic typing indicator to your messages by adding `typing` to `options` argument.
 
@@ -420,7 +420,7 @@ This module support postbacks. Postbacks occur when a Postback button, Get Start
 
 #### Referrals
 
-This module also support referrals. In fact, the value of the `ref` parameter is passed by the server via webhook and we are able to access these referrals in parameters of input messages ([facebook doc](https://developers.facebook.com/docs/messenger-platform/webhook-reference/referral)). 
+This module also support referrals. In fact, the value of the `ref` parameter is passed by the server via webhook and we are able to access these referrals in parameters of input messages ([facebook doc](https://developers.facebook.com/docs/messenger-platform/webhook-reference/referral)).
 
 #### Display Get Started
 
@@ -482,4 +482,3 @@ Get an invite and join us now! 👉[https://slack.botpress.io](https://slack.bot
 ### License
 
 botpress-messenger is licensed under AGPL-3.0
-
