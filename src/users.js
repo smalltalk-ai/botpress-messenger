@@ -60,6 +60,9 @@ module.exports = function(bp, messenger) {
           gender: profile.gender,
           timezone: profile.timezone,
           locale: profile.locale,
+          picture_url: profile.profile_pic,
+          first_name: profile.first_name,
+          last_name: profile.last_name
         }).return(profile)
 
       })
