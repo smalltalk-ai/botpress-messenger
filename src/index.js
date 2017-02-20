@@ -148,6 +148,14 @@ module.exports = {
 
     messenger = new Messenger(bp, config)
 
+    messenger.on('raw_webhook_body', e => {
+      bp.events.emit('messenger.raw_webhook_body', e)
+    })
+
+    messenger.on('raw_send_request', e => {
+      bp.events.emit('messenger.raw_send_body', e)
+    })
+
     // regenerate a new ngrok url and update it to facebook
     if (config.ngrok && config.connected) {
       bp.logger.debug('[messenger] updating ngrok to facebook')
