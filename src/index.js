@@ -1,3 +1,5 @@
+const checkVersion = require('botpress-version-manager')
+
 const path = require('path')
 const fs = require('fs')
 const _ = require('lodash')
@@ -102,6 +104,8 @@ module.exports = {
   },
 
   init: function(bp) {
+
+    checkVersion(bp, __dirname)
 
     bp.middlewares.register({
       name: 'messenger.sendMessages',
