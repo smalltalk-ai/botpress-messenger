@@ -1,3 +1,5 @@
+const checkVersion = require('botpress-version-manager')
+
 const path = require('path')
 const fs = require('fs')
 const _ = require('lodash')
@@ -9,69 +11,6 @@ const actions = require('./actions')
 const outgoing = require('./outgoing')
 const incoming = require('./incoming')
 const ngrok = require('./ngrok')
-
-/**
- * Load config from given file path
- *
- * If the file doesn't exist,
- * then it will write default one into the given file path
- *
- * @param {string} file - the file path
- * @return {Object} config object
- */
-const loadConfigFromFile = file => {
-
-  if (!fs.existsSync(file)) {
-    const config = {
-      applicationID: '',
-      accessToken : '',
-      appSecret : '',
-      verifyToken : uuid.v4(),
-      validated: false,
-      connected: false,
-      hostname: '',
-      ngrok: false,
-      displayGetStarted : false,
-      greetingMessage : 'Default greeting message',
-      persistentMenu : false,
-      persistentMenuItems : [],
-      automaticallyMarkAsRead : true,
-      trustedDomains : [],
-      autoRespondGetStarted: true,
-      autoResponse: 'Hello!'
-    }
-    saveConfigToFile(config, file)
-  }
-
-  return overwriteConfig(file)
-}
-
-const overwriteConfig = file => {
-  let config = JSON.parse(fs.readFileSync(file))
-
-  if (!config.verifyToken || config.verifyToken.length <= 1) {
-    config.verifyToken = uuid.v4()
-    saveConfigToFile(config, file)
-  }
-
-  if (process.env.MESSENGER_APP_ID) {
-    config.applicationID = process.env.MESSENGER_APP_ID
-  }
-
-  if (process.env.MESSENGER_ACCESS_TOKEN) {
-    config.accessToken = process.env.MESSENGER_ACCESS_TOKEN
-  }
-
-  if (process.env.MESSENGER_APP_SECRET) {
-    config.appSecret = process.env.MESSENGER_APP_SECRET
-  }
-
-  return config
-}
-
-var saveConfigToFile = (config, file) => {
-  fs.writeFileSync(file, JSON.stringify(config))
-}
 
 let messenger = null
 const outgoingPending = outgoing.pending
@@ -108,8 +47,65 @@ const outgoingMiddleware = (event, next) => {
   .then(setValue('resolve'), setValue('reject'))
 }
 
+const initializeMessenger = (bp, configurator) => {
+  return configurator.loadAll()
+  .then(config => {
+    messenger = new Messenger(bp, config)
+
+    // regenerate a new ngrok url and update it to facebook
+    if (!config.ngrok || !config.connected) {
+      return Promise.resolve(true)
+    }
+
+    bp.logger.debug('[messenger] updating ngrok to facebook')
+
+    return ngrok.getUrl(bp.botfile.port)
+    .then(url => {
+      url = url.replace(/https:\/\//i, '')
+      messenger.setConfig({ hostname: url })
+    })
+    .then(() => configurator.saveAll(messenger.getConfig()))
+    .then(() => messenger.updateSettings())
+    .then(() => messenger.connect())
+    .then(() => bp.notifications.send({
+      level: 'info',
+      message: 'Upgraded messenger app webhook with new ngrok url'
+    }))
+    .catch(err => {
+      bp.logger.error('[messenger] error updating ngrok', err)
+      bp.notifications.send({
+        level: 'error',
+        message: 'Error updating app webhook with new ngrok url. Please see logs for details.'
+      })
+    })
+  })
+}
+
 module.exports = {
+
+  config: {
+    applicationID: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_ID' },
+    accessToken: { type: 'string', required: true, default: '', env: 'MESSENGER_ACCESS_TOKEN' },
+    appSecret: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_SECRET' },
+    verifyToken: { type: 'string', required: false, default: uuid.v4() },
+    validated: { type: 'bool', required: false, default: false },
+    connected: { type: 'bool', required: false, default: false },
+    hostname: { type: 'string', required: false, default: '' },
+    homepage: { type: 'string' },
+    ngrok: { type: 'bool', required: false, default: false },
+    displayGetStarted: { type: 'bool', required: false, default: false },
+    greetingMessage: { type: 'string', required: false, default: 'Default greeting message' },
+    persistentMenu: { type: 'bool', required: false, default: false },
+    persistentMenuItems: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
+    automaticallyMarkAsRead: { type: 'bool', required: false, default: true },
+    trustedDomains: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
+    autoRespondGetStarted: { type: 'bool', required: false, default: true },
+    autoResponse: { type: 'string', required: false, default: 'Hello!' }
+  },
+
   init: function(bp) {
+
+    checkVersion(bp, __dirname)
 
     bp.middlewares.register({
       name: 'messenger.sendMessages',
@@ -142,97 +138,70 @@ module.exports = {
       })
     })
   },
-  ready: function(bp) {
-    const file = path.join(bp.projectLocation, bp.botfile.modulesConfigDir, 'botpress-messenger.json')
-    const config = loadConfigFromFile(file)
 
-    messenger = new Messenger(bp, config)
+  ready: function(bp, config) {
 
-    messenger.on('raw_webhook_body', e => {
-      bp.events.emit('messenger.raw_webhook_body', e)
-    })
+    initializeMessenger(bp, config)
+    .then(() => {
+      incoming(bp, messenger)
 
-    messenger.on('raw_send_request', e => {
-      bp.events.emit('messenger.raw_send_body', e)
-    })
-
-    // regenerate a new ngrok url and update it to facebook
-    if (config.ngrok && config.connected) {
-      bp.logger.debug('[messenger] updating ngrok to facebook')
-      ngrok.getUrl(bp.botfile.port)
-      .then(url => {
-        messenger.setConfig({ hostname: url.replace(/https:\/\//i, '') })
-        saveConfigToFile(messenger.getConfig(), file)
-        return messenger.updateSettings()
-        .then(() => messenger.connect())
+      messenger.on('raw_webhook_body', e => {
+        bp.events.emit('messenger.raw_webhook_body', e)
       })
-      .then(() => bp.notifications.send({
-        level: 'info',
-        message: 'Upgraded messenger app webhook with new ngrok url'
-      }))
-      .catch(err => {
-        bp.logger.error('[messenger] error updating ngrok', err)
-        bp.notifications.send({
-          level: 'error',
-          message: 'Error updating app webhook with new ngrok url. Please see logs for details.'
+
+      messenger.on('raw_send_request', e => {
+        bp.events.emit('messenger.raw_send_body', e)
+      })
+
+      const router = bp.getRouter('botpress-messenger')
+
+      router.get('/config', (req, res) => {
+        res.send(messenger.getConfig())
+      })
+
+      router.post('/config', (req, res) => {
+        messenger.setConfig(req.body)
+        config.saveAll(messenger.getConfig())
+        .then(() => messenger.updateSettings())
+        .then(() => res.sendStatus(200))
+        .catch((err) => {
+          res.status(500).send({ message: err.message })
         })
       })
-    }
 
-    incoming(bp, messenger)
-
-    bp.getRouter('botpress-messenger')
-    .get('/config', (req, res) => {
-      res.send(messenger.getConfig())
-    })
-
-    bp.getRouter('botpress-messenger')
-    .post('/config', (req, res) => {
-      messenger.setConfig(req.body)
-      saveConfigToFile(messenger.getConfig(), file)
-      messenger.updateSettings()
-      .then(() => {
-        res.sendStatus(200)
+      router.get('/ngrok', (req, res) => {
+        ngrok.getUrl()
+        .then(url => res.send(url))
       })
-      .catch((err) => {
-        res.status(500).send({ message: err.message })
+
+      router.post('/connection', (req, res) => {
+        if (messenger.getConfig().connected) {
+          messenger.disconnect()
+          .then(() => res.sendStatus(200))
+          .catch((err) => res.status(500).send({ message: err.message }))
+        } else {
+          messenger.connect()
+          .then(() => res.sendStatus(200))
+          .catch((err) => res.status(500).send({ message: err.message }))
+        }
       })
-    })
 
-    bp.getRouter('botpress-messenger')
-    .get('/ngrok', (req, res) => {
-      ngrok.getUrl()
-      .then(url => res.send(url))
-    })
-
-    bp.getRouter('botpress-messenger')
-    .post('/connection', (req, res) => {
-      if (messenger.getConfig().connected) {
-        messenger.disconnect()
-        .then(() => res.sendStatus(200))
-        .catch((err) => res.status(500).send({ message: err.message }))
-      } else {
-        messenger.connect()
-        .then(() => res.sendStatus(200))
-        .catch((err) => res.status(500).send({ message: err.message }))
-      }
-    })
-
-    bp.getRouter('botpress-messenger')
-    .post('/validation', (req, res) => {
-      messenger.sendValidationRequest()
-      .then((json) => {
-        res.send(json)
+      router.post('/validation', (req, res) => {
+        messenger.sendValidationRequest()
+        .then((json) => {
+          res.send(json)
+        })
+        .catch((err) => {
+          res.status(500).send({ message: err.message })
+        })
       })
-      .catch((err) => {
-        res.status(500).send({ message: err.message })
+
+      router.get('/homepage', (req, res) => {
+        const packageJSON = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')))
+        res.send({ homepage: packageJSON.homepage })
       })
+
     })
 
-    bp.getRouter('botpress-messenger')
-    .get('/homepage', (req, res) => {
-      const packageJSON = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')))
-      res.send({ homepage: packageJSON.homepage })
-    })
   }
 }
