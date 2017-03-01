@@ -156,13 +156,19 @@ class Messenger extends EventEmitter {
   sendRequest(body, endpoint, method) {
     endpoint = endpoint || 'messages'
     method = method || 'POST'
-    return fetch(`https://graph.facebook.com/v2.7/me/${endpoint}?access_token=${this.config.accessToken}`, {
+
+    const url = `https://graph.facebook.com/v2.7/me/${endpoint}`
+    return fetch(`${url}?access_token=${this.config.accessToken}`, {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     })
     .then(this._handleFacebookResponse)
     .then(res => res.json())
+    .then(json => {
+      this._handleEvent('raw_send_request', { url, token: this.config.accessToken, body, endpoint, method, response: json })
+      return json
+    })
   }
 
   sendThreadRequest(body, method) {
@@ -433,6 +439,8 @@ class Messenger extends EventEmitter {
       if (data.object !== 'page') {
         return
       }
+
+      this._handleEvent('raw_webhook_body', data)
 
       // Iterate over each entry. There may be multiple if batched.
       data.entry.forEach((entry) => {
