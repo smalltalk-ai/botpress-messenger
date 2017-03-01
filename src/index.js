@@ -141,42 +141,17 @@ module.exports = {
 
   ready: function(bp, config) {
 
-<<<<<<< HEAD
     initializeMessenger(bp, config)
     .then(() => {
       incoming(bp, messenger)
-=======
-    messenger.on('raw_webhook_body', e => {
-      bp.events.emit('messenger.raw_webhook_body', e)
-    })
 
-    messenger.on('raw_send_request', e => {
-      bp.events.emit('messenger.raw_send_body', e)
-    })
+      messenger.on('raw_webhook_body', e => {
+        bp.events.emit('messenger.raw_webhook_body', e)
+      })
 
-    // regenerate a new ngrok url and update it to facebook
-    if (config.ngrok && config.connected) {
-      bp.logger.debug('[messenger] updating ngrok to facebook')
-      ngrok.getUrl(bp.botfile.port)
-      .then(url => {
-        messenger.setConfig({ hostname: url.replace(/https:\/\//i, '') })
-        saveConfigToFile(messenger.getConfig(), file)
-        return messenger.updateSettings()
-        .then(() => messenger.connect())
+      messenger.on('raw_send_request', e => {
+        bp.events.emit('messenger.raw_send_body', e)
       })
-      .then(() => bp.notifications.send({
-        level: 'info',
-        message: 'Upgraded messenger app webhook with new ngrok url'
-      }))
-      .catch(err => {
-        bp.logger.error('[messenger] error updating ngrok', err)
-        bp.notifications.send({
-          level: 'error',
-          message: 'Error updating app webhook with new ngrok url. Please see logs for details.'
-        })
-      })
-    }
->>>>>>> master
 
       const router = bp.getRouter('botpress-messenger')
 
