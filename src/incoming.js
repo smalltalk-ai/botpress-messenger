@@ -129,7 +129,7 @@ module.exports = (bp, messenger) => {
       const recipient = pending.event.raw.to
       if (e.sender.id === recipient) {
         if (pending.event.raw.waitRead
-          && pending.timestamp 
+          && pending.timestamp
           && pending.timestamp <= e.read.watermark) {
           pending.resolve(e)
           delete outgoing.pending[pending.event.__id]
@@ -174,6 +174,20 @@ module.exports = (bp, messenger) => {
         type: 'referral',
         user: profile,
         text: e.referral.ref,
+        raw: e
+      })
+    })
+  })
+
+  messenger.on('payment', e=> {
+    preprocessEvent(e)
+    .then(profile=> {
+      bp.middlewares.sendIncoming({
+        platform: 'facebook',
+        type: 'payment',
+        text: 'payment',
+        user: profile,
+        payment: e.payment,
         raw: e
       })
     })
