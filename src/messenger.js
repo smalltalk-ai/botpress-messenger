@@ -200,6 +200,42 @@ class Messenger extends EventEmitter {
       .catch(err => console.log(`Error getting user profile: ${err}`))
   }
 
+  createTargetAudienceSetting() {
+    var setting = { target_audience: {} }
+    
+    switch(this.config.targetAudience){
+      case 'openToAll':
+        setting.target_audience.audience_type = 'all'
+        break;
+      case 'openToSome':
+        var countriesWhitelist = this.config.targetAudienceOpenToSome.split(/\, ?/g);
+        setting.target_audience.audience_type = 'custom'
+        setting.target_audience.countries = {
+          whitelist: countriesWhitelist
+        }
+        break;
+      case 'closeToSome':
+        setting.target_audience.audience_type = 'custom'
+        var countriesBlacklist = this.config.targetAudienceCloseToSome.split(/\, ?/g);
+        setting.target_audience.countries = {
+          blacklist: countriesBlacklist
+        }
+        break;
+      case 'closeToAll':
+        setting.target_audience.audience_type = 'none'
+        break;
+    }
+
+    return setting;
+  }
+
+  setTargetAudience() {
+    const url = `https://graph.facebook.com/v2.6/me/messenger_profile?access_token=${this.config.accessToken}`
+    var setting = this.createTargetAudienceSetting();
+
+    return this.sendRequest(setting, 'messenger_profile', 'POST')
+  }
+
   setWhitelistedDomains(domains) {
     const url = `https://graph.facebook.com/v2.7/me/thread_settings?fields=whitelisted_domains&access_token=${this.config.accessToken}`
     return fetch(url)
@@ -302,6 +338,8 @@ class Messenger extends EventEmitter {
       ? this.setPersistentMenu(items)
       : this.deletePersistentMenu()
 
+    const updateTargetAudience = () => this.setTargetAudience()
+
     const updateTrustedDomains = () => this.setWhitelistedDomains(this.config.trustedDomains)
 
     let thrown = false
@@ -318,6 +356,8 @@ class Messenger extends EventEmitter {
     .catch(contextifyError('greeting text'))
     .then(updatePersistentMenu)
     .catch(contextifyError('persistent menu'))
+    .then(updateTargetAudience)
+    .catch(contextifyError('target audience'))
     .then(updateTrustedDomains)
     .catch(contextifyError('trusted domains'))
   }
