@@ -9,6 +9,7 @@ import {
   ControlLabel,
   Panel,
   Checkbox,
+  Radio,
   Glyphicon,
   ListGroup,
   ListGroupItem,
@@ -335,6 +336,35 @@ export default class MessengerModule extends React.Component {
     </ListGroupItem>
   }
 
+  renderTargetAudience(){
+    return (
+      <div>
+        <FormGroup>
+          {this.renderLabel('Target Audience', this.state.homepage+'#target-audience')}
+          <Col sm={7}>
+
+            <FormGroup>
+              <Radio name="targetAudienceRadio" value="open_to_all">Open bot to all users</Radio>
+              <Radio name="targetAudienceRadio" value="open_to_some">Close the bot for all users, except:
+                <FormControl name="targetOpenToSome"
+                  componentClass="textarea" rows="3"
+                  value={this.state['targetOpenToSome']}
+                  onChange={this.handleChange} />
+              </Radio>
+              <Radio name="targetAudienceRadio" value="close_for_some">Close the bot just for some users
+                <FormControl name="targetCloseToSome"
+                  componentClass="textarea" rows="3"
+                  value={this.state['targetCloseToSome']}
+                  onChange={this.handleChange} />              
+              </Radio>
+              <Radio name="targetAudienceRadio" value="close_to_all">Close the bot for all users</Radio>
+            </FormGroup>
+          </Col>
+        </FormGroup>
+      </div>
+    )
+  }
+
   renderTrustedDomainList() {
     const trustedDomainElements = this.state.trustedDomains.map(this.renderDomainElement)
 
@@ -484,6 +514,7 @@ export default class MessengerModule extends React.Component {
         <div className={style.section}>
           {this.renderHeader('Advanced')}
           <div>
+            {this.renderTargetAudience()}
             {this.renderTrustedDomainList()}
           </div>
         </div>
