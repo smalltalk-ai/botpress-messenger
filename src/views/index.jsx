@@ -4,6 +4,7 @@ import {
   Form,
   FormGroup,
   FormControl,
+  HelpBlock,
   Col,
   Button,
   ControlLabel,
@@ -85,6 +86,9 @@ export default class MessengerModule extends React.Component {
       'ngrok',
       'persistentMenu',
       'persistentMenuItems',
+      'targetAudience',
+      'targetAudienceOpenToSome',
+      'targetAudienceCloseToSome',
       'trustedDomains'
     ]
 
@@ -342,23 +346,34 @@ export default class MessengerModule extends React.Component {
         <FormGroup>
           {this.renderLabel('Target Audience', this.state.homepage+'#target-audience')}
           <Col sm={7}>
-
-            <FormGroup>
-              <Radio name="targetAudienceRadio" value="open_to_all">Open bot to all users</Radio>
-              <Radio name="targetAudienceRadio" value="open_to_some">Close the bot for all users, except:
-                <FormControl name="targetOpenToSome"
-                  componentClass="textarea" rows="3"
-                  value={this.state['targetOpenToSome']}
-                  onChange={this.handleChange} />
-              </Radio>
-              <Radio name="targetAudienceRadio" value="close_for_some">Close the bot just for some users
-                <FormControl name="targetCloseToSome"
-                  componentClass="textarea" rows="3"
-                  value={this.state['targetCloseToSome']}
-                  onChange={this.handleChange} />              
-              </Radio>
-              <Radio name="targetAudienceRadio" value="close_to_all">Close the bot for all users</Radio>
-            </FormGroup>
+            <Radio name="targetAudience" value="openToAll" checked={this.state.targetAudience === "openToAll"} onChange={this.handleChange}>Open the bot to all users</Radio>
+            <Radio name="targetAudience" value="openToSome" checked={this.state.targetAudience === "openToSome"} onChange={this.handleChange}>Open the bot just to some users</Radio>
+            { this.state.targetAudience == "openToSome" ?
+              <FormGroup>
+                <Col sm={12}>
+                  <FormControl name="targetAudienceOpenToSome"
+                    componentClass="textarea" rows="3"
+                    value={this.state['targetAudienceOpenToSome']}
+                    onChange={this.handleChange} />
+                  <HelpBlock>Separate countries by commas. You must use a <a target="_blank" href="https://en.wikipedia.org/wiki/ISO_3166-1#Current_codes">ISO-3361 Alpha 2 code</a>.</HelpBlock>
+                </Col>
+              </FormGroup>
+              :null
+            }
+            <Radio name="targetAudience" value="closeToSome" checked={this.state.targetAudience === "closeToSome"} onChange={this.handleChange}>Close the bot just to some users</Radio>
+            { this.state.targetAudience == "closeToSome" ?
+              <FormGroup>
+                <Col sm={12}>
+                  <FormControl name="targetAudienceCloseToSome"
+                      componentClass="textarea" rows="3"
+                      value={this.state['targetAudienceCloseToSome']}
+                      onChange={this.handleChange} />
+                  <HelpBlock>Separate countries by commas. You must use a <a target="_blank" href="https://en.wikipedia.org/wiki/ISO_3166-1#Current_codes">ISO-3361 Alpha 2 code</a>.</HelpBlock>
+                </Col>        
+              </FormGroup>
+              :null
+            }
+            <Radio name="targetAudience" value="closeToAll" checked={this.state.targetAudience === "closeToAll"} onChange={this.handleChange}>Close the bot to all users</Radio>
           </Col>
         </FormGroup>
       </div>
