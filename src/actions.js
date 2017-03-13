@@ -123,6 +123,7 @@ const createAttachment = (userId, type, url, options) => {
       to: userId,
       type: type,
       url: url,
+      is_reusable: (options && options.isReusable),
       typing: (options && options.typing),
       quick_replies: options && options.quick_replies,
       waitRead: options && options.waitRead,
