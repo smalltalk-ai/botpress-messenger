@@ -101,8 +101,8 @@ class Messenger extends EventEmitter {
         payload: { url }
       }
     }
-    if( options.is_reusable && _.isBoolean(options.is_reusable) ){
-      message.attachment.payload.is_reusable = options.is_reusable;
+    if( options.isReusable && _.isBoolean(options.isReusable) ){
+      message.attachment.payload.is_reusable = options.isReusable;
     }
     if( options.attachmentId ){
       message.attachment.payload = {
