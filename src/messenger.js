@@ -104,6 +104,11 @@ class Messenger extends EventEmitter {
     if( options.is_reusable && _.isBoolean(options.is_reusable) ){
       message.attachment.payload.is_reusable = options.is_reusable;
     }
+    if( options.attachmentId ){
+      message.attachment.payload = {
+        attachment_id: options.attachmentId
+      }
+    }
     const formattedQuickReplies = this._formatQuickReplies(quickReplies)
     if (formattedQuickReplies && formattedQuickReplies.length > 0) {
       message.quick_replies = formattedQuickReplies

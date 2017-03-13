@@ -105,7 +105,16 @@ const createText = (userId, text, options) => {
 const createAttachment = (userId, type, url, options) => {
   validateUserId(userId)
   validateAttachmentType(type)
-  validateUrl(url)
+  
+  if( _.isNull(url) && !(options && options.attachmentId) ){
+    throw new Error('If URL is null, you must pass an attachment_id on options object')
+  }
+  else if( options && options.attachmentId ){
+    validateText(options.attachmentId)
+  }
+  else{
+    validateUrl(url);
+  }
 
   if (options && options.quick_replies) {
     validateQuickReplies(options.quick_replies)
@@ -124,6 +133,7 @@ const createAttachment = (userId, type, url, options) => {
       type: type,
       url: url,
       is_reusable: (options && options.isReusable),
+      attachmentId: (options && options.attachmentId),
       typing: (options && options.typing),
       quick_replies: options && options.quick_replies,
       waitRead: options && options.waitRead,
