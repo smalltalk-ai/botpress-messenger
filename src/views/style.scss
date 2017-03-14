@@ -6,6 +6,10 @@
   color: gray;
 }
 
+:global(.form-group) {
+  margin-top: 7px;
+}
+
 .section {
   background-color: #fff;
   border-radius: 5px;
