@@ -353,7 +353,8 @@ class Messenger extends EventEmitter {
         return {
           content_type: reply.content_type || 'text',
           title: reply.title,
-          payload: reply.payload || 'QR_' + normalizeString(reply.title)
+          payload: reply.payload || 'QR_' + normalizeString(reply.title),
+          image_url: reply.image_url
         }
       }
       return {}
