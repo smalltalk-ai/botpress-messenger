@@ -349,7 +349,7 @@ export default class MessengerModule extends React.Component {
             <Radio name="targetAudience" value="openToAll" checked={this.state.targetAudience === "openToAll"} onChange={this.handleChange}>Open the bot to all users</Radio>
             <Radio name="targetAudience" value="openToSome" checked={this.state.targetAudience === "openToSome"} onChange={this.handleChange}>Open the bot just to some users</Radio>
             { this.state.targetAudience == "openToSome" ?
-              <FormGroup>
+              <FormGroup className={style.insideRadioFormGroup}>
                 <Col sm={12}>
                   <FormControl name="targetAudienceOpenToSome"
                     componentClass="textarea" rows="3"
@@ -362,7 +362,7 @@ export default class MessengerModule extends React.Component {
             }
             <Radio name="targetAudience" value="closeToSome" checked={this.state.targetAudience === "closeToSome"} onChange={this.handleChange}>Close the bot just to some users</Radio>
             { this.state.targetAudience == "closeToSome" ?
-              <FormGroup>
+              <FormGroup className={style.insideRadioFormGroup}>
                 <Col sm={12}>
                   <FormControl name="targetAudienceCloseToSome"
                       componentClass="textarea" rows="3"

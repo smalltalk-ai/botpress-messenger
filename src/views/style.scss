@@ -6,10 +6,6 @@
   color: gray;
 }
 
-:global(.form-group) {
-  margin-top: 7px;
-}
-
 .section {
   background-color: #fff;
   border-radius: 5px;
@@ -38,4 +34,8 @@
 
 .messagePanel {
   color: gray;
+}
+
+.insideRadioFormGroup {
+  margin-top: 7px;
 }
