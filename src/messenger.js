@@ -230,7 +230,7 @@ class Messenger extends EventEmitter {
   }
 
   setTargetAudience() {
-    const url = `https://graph.facebook.com/v2.6/me/messenger_profile?access_token=${this.config.accessToken}`
+    const url = `https://graph.facebook.com/v2.7/me/messenger_profile?access_token=${this.config.accessToken}`
     var setting = this.createTargetAudienceSetting();
 
     return this.sendRequest(setting, 'messenger_profile', 'POST')
