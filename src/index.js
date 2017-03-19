@@ -98,6 +98,9 @@ module.exports = {
     persistentMenu: { type: 'bool', required: false, default: false },
     persistentMenuItems: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
     automaticallyMarkAsRead: { type: 'bool', required: false, default: true },
+    targetAudience: { type: 'string', required: true, default: 'openToAll'},
+    targetAudienceOpenToSome: { type: 'string', required: false },
+    targetAudienceCloseToSome: { type: 'string', required: false },
     trustedDomains: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
     autoRespondGetStarted: { type: 'bool', required: false, default: true },
     autoResponse: { type: 'string', required: false, default: 'Hello!' }
