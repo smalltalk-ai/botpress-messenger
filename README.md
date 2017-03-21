@@ -256,7 +256,7 @@ By using our module, you can send anything you want to your users on Messenger. 
 
 #### Creating actions without sending them
 
-Note that all the below actions are available under two format: `send___` and `create____`, the latter effectively only creating the middleware Event without piping (sending) it to the outgoing middleware. This is useful when combining libraries together (for example Botkit):
+Note that all the below actions are available under two format: `send___` and `create____`, the latter effectively only creating the middleware Event without sending it to the outgoing middleware. This is useful when combining libraries together (for example Botkit):
 
 ```js
   // This message won't be sent
