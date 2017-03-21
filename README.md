@@ -89,7 +89,7 @@ You can listen to incoming event easily with Botpress by using `bp` built-in `he
 
 ```js
 bp.hear({ platform: 'facebook', type: 'postback', text: 'GET_STARTED' }, (event, next) => {
-      bp.messenger.pipeText(event.user.id, 'Welcome on Botpress!!!')
+      bp.messenger.sendText(event.user.id, 'Welcome on Botpress!!!')
    }
 })
 ```
@@ -477,7 +477,7 @@ botpress-messenger verifies that requests really come from Facebook's servers by
 
 There's a [Slack community](https://slack.botpress.io) where you are welcome to join us, ask any question and even help others.
 
-Get an invite and join us now! 👉[https://slack.botpress.io](https://slack.botpress.io)
+Get an invite and join us now! 👉 [https://slack.botpress.io](https://slack.botpress.io)
 
 ### License
 
