@@ -79,8 +79,19 @@ module.exports = (bp, messenger) => {
 
       if (e.postback.payload === 'GET_STARTED') {
         const mConfig = messenger.getConfig()
-        if (mConfig.displayGetStarted && mConfig.autoRespondGetStarted) {
-          bp.messenger.sendText(profile.id, mConfig.autoResponse)
+
+        if (mConfig.displayGetStarted && mConfig.autoResponseOption == 'autoResponseText') {
+          bp.messenger.sendText(profile.id, mConfig.autoResponseText)
+        }
+        
+        if (mConfig.displayGetStarted && mConfig.autoResponseOption == 'autoResponsePostback') {
+          bp.middlewares.sendIncoming({
+            platform: 'facebook',
+            type: 'postback',
+            user: profile,
+            text: mConfig.autoResponsePostback,
+            raw: e
+          })
         }
       }
     })
