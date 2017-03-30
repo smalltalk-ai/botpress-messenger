@@ -257,10 +257,35 @@ export default class MessengerModule extends React.Component {
   }
 
   renderGetStartedMessage() {
-    return <div>
-      {this.renderCheckBox('Auto respond to GET_STARTED postback', 'autoRespondGetStarted', this.state.homepage+'#display-get-started')}
-      {this.state.autoRespondGetStarted && this.renderTextAreaInput('Auto response', 'autoResponse', this.state.homepage+'#greeting-message')}
-    </div>
+    return (
+      <FormGroup>
+        {this.renderLabel('Get Started Auto Response?', this.state.homepage+'#display-get-started')}
+        <Col sm={7}>
+          <Radio name="autoResponseOption" value="noResponse" checked={this.state.autoResponseOption === "noResponse"} onChange={this.handleChange}>No auto response</Radio>
+          <Radio name="autoResponseOption" value="autoResponseText" checked={this.state.autoResponseOption === "autoResponseText"} onChange={this.handleChange}>Text response</Radio>
+          { this.state.autoResponseOption == "autoResponseText" &&
+            <FormGroup className={style.insideRadioFormGroup}>
+              <Col sm={12}>
+                <FormControl name="autoResponseText"
+                  componentClass="textarea" rows="3"
+                  value={this.state['autoResponseText']}
+                  onChange={this.handleChange} />
+                <HelpBlock>Define an auto response text to <em>Get Started</em> postback</HelpBlock>
+              </Col>
+            </FormGroup>
+          }
+          <Radio name="autoResponseOption" value="autoResponsePostback" checked={this.state.autoResponseOption === "autoResponsePostback"} onChange={this.handleChange}>Trigger a postback</Radio>
+          { this.state.autoResponseOption == "autoResponsePostback" &&
+            <FormGroup className={style.insideRadioFormGroup}>
+              <Col sm={12}>
+                <FormControl name="autoResponsePostback" type="text" value={this.state['autoResponsePostback']} onChange={this.handleChange} />
+                <HelpBlock><strong>{this.state.autoResponsePostback}</strong> postback will be triggered automatically on <em>Get Started</em> event.</HelpBlock>
+              </Col>
+            </FormGroup>
+          }
+        </Col>
+      </FormGroup>
+    )
   }
 
   renderHostnameTextInput(props) {

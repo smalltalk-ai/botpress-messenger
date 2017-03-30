@@ -102,8 +102,11 @@ module.exports = {
     targetAudienceOpenToSome: { type: 'string', required: false },
     targetAudienceCloseToSome: { type: 'string', required: false },
     trustedDomains: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
-    autoRespondGetStarted: { type: 'bool', required: false, default: true },
-    autoResponse: { type: 'string', required: false, default: 'Hello!' }
+    autoRespondGetStarted: { type: 'bool', required: false, default: true }, // deprecated
+    autoResponse: { type: 'string', required: false, default: 'Hello!' },     // deprecated
+    autoResponseOption: { type: 'string', required: false, default: 'noResponse' },
+    autoResponseText: { type: 'string', required: false, default: 'Hello, human!' },
+    autoResponsePostback: { type: 'string', required: false, default: 'YOUR_POSTBACK' }
   },
 
   init: function(bp) {
