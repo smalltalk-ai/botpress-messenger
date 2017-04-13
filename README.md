@@ -20,7 +20,7 @@ It's also possible to install it through the Botpress UI in the modules section.
 
 To setup connexion of your chatbot to Messenger, you need to fill the connexion settings directly in the module interface. In fact, you only need to follow these 5 steps and your bot will be active.
 
-Settings can also be set programmatically by providing the settings in the `${modules_config_dir}/botpress-messenger.json`
+All the information filled in the UI are store into the database (SQLite or Postgress).If you want, you can change your information directly into your database.  
 
 <img alt='Connexion settings' src='assets/connexion-settings.png' width='700px'/>
 
