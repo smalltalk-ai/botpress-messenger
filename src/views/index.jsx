@@ -423,7 +423,7 @@ export default class MessengerModule extends React.Component {
           <Col smOffset={3} sm={7}>
             <ControlLabel>Add a new domain:</ControlLabel>
             <FormControl ref={(input) => this.trustedDomainInput = input} type="text"/>
-            <Button className={style.messengerButton} onClick={() => this.handleAddToTrustedDomainsList()}>
+            <Button className='bp-button' onClick={() => this.handleAddToTrustedDomainsList()}>
               Add domain
             </Button>
           </Col>
@@ -463,7 +463,7 @@ export default class MessengerModule extends React.Component {
             </FormControl>
             <FormControl ref={r => this.newPersistentMenuTitle = r} type="text" placeholder="Title"/>
             <FormControl ref={r => this.newPersistentMenuValue = r} type="text" placeholder="Value"/>
-            <Button className={style.messengerButton} onClick={() => this.handleAddToPersistentMenuList()}>
+            <Button className='bp-button' onClick={() => this.handleAddToPersistentMenuList()}>
               Add to menu
             </Button>
           </Col>
@@ -474,15 +474,15 @@ export default class MessengerModule extends React.Component {
 
   renderSaveButton() {
     return (
-      <Button className={style.messengerButton} onClick={this.handleSaveChanges}>
+      <Button className='bp-button' onClick={this.handleSaveChanges}>
         Save
       </Button>
     )
   }
 
   renderConnectionValidation() {
-    // const validatedText = <ControlLabel>All your connection settings are valid.</ControlLabel>
-    // const button = <Button className={style.messengerButton} onClick={this.handleValidation}>Validate</Button>
+    const validatedText = <ControlLabel>All your connection settings are valid.</ControlLabel>
+    const button = <Button className='bp-button' onClick={this.handleValidation}>Validate</Button>
 
     return <FormGroup>
         {this.renderLabel('Validation', this.state.homepage+'#5-validate-and-connect')}
@@ -494,13 +494,13 @@ export default class MessengerModule extends React.Component {
 
   renderConnectionButton() {
     const disconnectButton = (
-      <Button className={style.messengerButton} onClick={this.handleConnection}>
+      <Button className='bp-button' onClick={this.handleConnection}>
         Disconnect
       </Button>
     )
 
     const connectButton = (
-       <Button className={style.messengerButton} onClick={this.handleConnection}>
+       <Button className='bp-button' onClick={this.handleConnection}>
          {this.state.initialStateHash && this.state.initialStateHash !== this.getStateHash()
             ? 'Save & Connect'
             : 'Connect'
