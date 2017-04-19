@@ -244,44 +244,26 @@ class Messenger extends EventEmitter {
     return this.sendRequest(setting, 'messenger_profile', 'POST')
   }
 
-  setWhitelistedDomains(domains) {
+  async setWhitelistedDomains(domains) {
     const url = `https://graph.facebook.com/v2.6/me/messenger_profile?access_token=${this.config.accessToken}`
-    return fetch(url)
-      .then(this._handleFacebookResponse)
-      .then(res => res.json())
-      .then((json) => {
-        if (json && json.data && json.data[0]) {
-          return json.data[0].whitelisted_domains
-        } else {
-          return []
-        }
-      })
-      .then((oldDomains) => {
-        if (!oldDomains || !oldDomains.length) {
-          return
-        }
 
-        fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            setting_type: 'domain_whitelisting',
-            whitelisted_domains: oldDomains,
-            domain_action_type: 'remove'
-          })
-        })
+    await fetch(url, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } })
+    .then(this._handleFacebookResponse)
+
+    if (domains.length === 0) {
+      return
+    }
+
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        setting_type: 'domain_whitelisting',
+        whitelisted_domains: domains,
+        domain_action_type: 'add'
       })
-      .then(this._handleFacebookResponse)
-      .then(() => fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          setting_type: 'domain_whitelisting',
-          whitelisted_domains: domains,
-          domain_action_type: 'add'
-        })
-      }))
-      .then(this._handleFacebookResponse)
+    })
+    .then(this._handleFacebookResponse)
   }
 
   setGreetingText(text) {
