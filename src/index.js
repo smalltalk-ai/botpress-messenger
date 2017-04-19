@@ -125,23 +125,33 @@ module.exports = {
 
     bp.messenger = {}
     _.forIn(actions, (action, name) => {
-      bp.messenger[name] = action
-      var sendName = name.replace(/^create/, 'send')
-      bp.messenger[sendName] = Promise.method(function() {
+      
+      const applyFn = fn => function() {
         var msg = action.apply(this, arguments)
         msg.__id = new Date().toISOString() + Math.random()
         const resolver = { event: msg }
         
+        // TODO DEPRECATED: Use `msg._promise, msg._resolve instead`
+        // TODO Will be removed in Botpress 1.0+
         const promise = new Promise(function(resolve, reject) {
-          resolver.resolve = resolve
-          resolver.reject = reject
+          resolver.resolve = val => {
+            msg._resolve && msg._resolve(val)
+            resolve(val)
+          }
+          resolver.reject = val => {
+            msg._reject && msg._reject(val)
+            reject(val)
+          }
         })
         
         outgoingPending[msg.__id] = resolver
         
-        bp.middlewares.sendOutgoing(msg)
-        return promise
-      })
+        return fn && fn(msg, promise)
+      }
+
+      var sendName = name.replace(/^create/, 'send')
+      bp.messenger[sendName] = Promise.method(applyFn((msg, promise) => bp.middlewares.sendOutgoing(msg) && promise))
+      bp.messenger[name] = applyFn(msg => msg)
     })
   },
 

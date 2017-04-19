@@ -245,7 +245,7 @@ class Messenger extends EventEmitter {
   }
 
   setWhitelistedDomains(domains) {
-    const url = `https://graph.facebook.com/v2.7/me/thread_settings?fields=whitelisted_domains&access_token=${this.config.accessToken}`
+    const url = `https://graph.facebook.com/v2.6/me/messenger_profile?access_token=${this.config.accessToken}`
     return fetch(url)
       .then(this._handleFacebookResponse)
       .then(res => res.json())
