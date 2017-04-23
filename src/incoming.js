@@ -135,15 +135,14 @@ module.exports = (bp, messenger) => {
   })
 
   messenger.on('read', e => {
-
     _.values(outgoing.pending).forEach(pending => {
       const recipient = pending.event.raw.to
       if (e.sender.id === recipient) {
         if (pending.event.raw.waitRead
           && pending.timestamp
           && pending.timestamp <= e.read.watermark) {
-          pending.resolve(e)
-          delete outgoing.pending[pending.event.__id]
+            pending.resolve(e)
+            delete outgoing.pending[pending.event.__id]
         }
       }
     })

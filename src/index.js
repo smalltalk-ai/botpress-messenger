@@ -28,9 +28,7 @@ const outgoingMiddleware = (event, next) => {
     if (event.__id && outgoingPending[event.__id]) {
 
       if (args && args[0] && args[0].message_id) {
-        let ts = args[0].message_id.split(':')[0]
-        ts = ts && ts.substr(4)
-        outgoingPending[event.__id].timestamp = parseInt(ts)
+        outgoingPending[event.__id].timestamp = new Date().getTime() - 1000
         outgoingPending[event.__id].mid = args[0].message_id
       }
 
