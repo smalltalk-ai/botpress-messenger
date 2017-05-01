@@ -567,6 +567,21 @@ export default class MessengerModule extends React.Component {
     </div>
   }
 
+  renderConfigView() {
+    return (
+        <FormGroup>
+          <Col componentClass={ControlLabel} sm={3}>
+            <Button
+              href="/api/botpress-messenger/config"
+              download="botpress-messenger.json" >
+              Download Config
+            </Button>
+          </Col>
+        </FormGroup>
+
+    )
+  }
+
   renderForm() {
     return (
       <Form horizontal>
@@ -600,6 +615,7 @@ export default class MessengerModule extends React.Component {
             {this.renderTargetAudience()}
             {this.renderTrustedDomainList()}
             {this.renderChatExtensions()}
+            {this.renderConfigView()}
           </div>
         </div>
       </Form>
