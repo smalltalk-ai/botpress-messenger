@@ -89,7 +89,10 @@ export default class MessengerModule extends React.Component {
       'targetAudience',
       'targetAudienceOpenToSome',
       'targetAudienceCloseToSome',
-      'trustedDomains'
+      'trustedDomains',
+      'chatExtensionHomeUrl',
+      'chatExtensionShowShareButton',
+      'chatExtensionInTest'
     ]
 
     return hashingStateItems.map((i) => {
@@ -432,6 +435,46 @@ export default class MessengerModule extends React.Component {
     )
   }
 
+  /**
+   * Render chat extensions options
+   *
+   * For more info: https://developers.facebook.com/docs/messenger-platform/guides/chat-extensions
+   */
+  renderChatExtensions() {
+    return (<div>
+      <FormGroup>
+        {this.renderLabel('Chat Extensions',
+            this.state.homepage+'#chat-extensions')}
+        <Col sm={7}>
+          <ControlLabel>Update Home URL</ControlLabel>
+          <FormControl name="chatExtensionHomeUrl" type="text"
+            value={this.state.chatExtensionHomeUrl}
+            onChange={this.handleChange}/>
+        </Col>
+      </FormGroup>
+      <FormGroup>
+        <Col smOffset={3} sm={2}>
+          <ControlLabel>Show Share Button</ControlLabel>
+        </Col>
+        <Col sm={7}>
+          <Checkbox name="chatExtensionShowShareButton"
+            checked={this.state.chatExtensionShowShareButton}
+            onChange={this.handleChangeCheckBox} />
+        </Col>
+      </FormGroup>
+      <FormGroup>
+        <Col smOffset={3} sm={2}>
+          <ControlLabel>Test Mode</ControlLabel>
+        </Col>
+        <Col sm={7}>
+          <Checkbox name="chatExtensionInTest"
+            checked={this.state.chatExtensionInTest}
+            onChange={this.handleChangeCheckBox} />
+        </Col>
+      </FormGroup>
+    </div>)
+  }
+
   renderPersistentMenuItem(item) {
     const handleRemove = () => this.handleRemoveFromList(item, 'persistentMenuItems')
     return <ListGroupItem key={item.title}>
@@ -571,6 +614,7 @@ export default class MessengerModule extends React.Component {
           <div>
             {this.renderTargetAudience()}
             {this.renderTrustedDomainList()}
+            {this.renderChatExtensions()}
             {this.renderConfigView()}
           </div>
         </div>

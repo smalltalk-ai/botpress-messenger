@@ -40,7 +40,7 @@ const outgoingMiddleware = (event, next) => {
       }
     }
   }
-  
+
   outgoing[event.type](event, next, messenger)
   .then(setValue('resolve'), setValue('reject'))
 }
@@ -104,7 +104,10 @@ module.exports = {
     autoResponse: { type: 'string', required: false, default: 'Hello!' },     // deprecated
     autoResponseOption: { type: 'string', required: false, default: 'noResponse' },
     autoResponseText: { type: 'string', required: false, default: 'Hello, human!' },
-    autoResponsePostback: { type: 'string', required: false, default: 'YOUR_POSTBACK' }
+    autoResponsePostback: { type: 'string', required: false, default: 'YOUR_POSTBACK' },
+    chatExtensionHomeUrl: { type: 'string', required: false, default: '' },
+    chatExtensionInTest: { type: 'bool', required: false, default: true },
+    chatExtensionShowShareButton: { type: 'bool', required: false, default: false }
   },
 
   init: function(bp) {
@@ -123,12 +126,12 @@ module.exports = {
 
     bp.messenger = {}
     _.forIn(actions, (action, name) => {
-      
+
       const applyFn = fn => function() {
         var msg = action.apply(this, arguments)
         msg.__id = new Date().toISOString() + Math.random()
         const resolver = { event: msg }
-        
+
         // TODO DEPRECATED: Use `msg._promise, msg._resolve instead`
         // TODO Will be removed in Botpress 1.0+
         const promise = new Promise(function(resolve, reject) {
@@ -141,9 +144,9 @@ module.exports = {
             reject(val)
           }
         })
-        
+
         outgoingPending[msg.__id] = resolver
-        
+
         return fn && fn(msg, promise)
       }
 

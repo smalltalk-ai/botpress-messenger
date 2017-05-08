@@ -25,7 +25,7 @@ Settings can also be set programmatically by providing the settings in the `${mo
 <img alt='Connexion settings' src='assets/connexion-settings.png' width='700px'/>
 
 ##### 1. Create a [**Facebook page**](https://www.facebook.com/pages/create) and a [**Messenger application**](https://developers.facebook.com).
-  
+
 <img alt='Create app' src='/assets/create-app-facebook.png' width='500px' />
 
 ##### 2. Get App ID and App Secret
@@ -312,7 +312,7 @@ const options = {
 
 bp.messenger.sendText(userId, text, options)
 .then(() => {
-  // the message was read because of `waitRead` option  
+  // the message was read because of `waitRead` option
 })
 ```
 
@@ -454,12 +454,25 @@ By using UI, users can configure \(add, modify and remove\) trusted domains ([fa
 
 <img alt='Trusted domains' src='/assets/trusted-domains.png' width='600px'/>
 
+#### Chat Extensions
+
+Using the UI, you can set the home URL for your chat extension ([facebook doc](https://developers.facebook.com/docs/messenger-platform/guides/chat-extensions)).
+
+**Note:** the URL you specify must use HTTPS.  Facebook will return an error if you enter an URL that is not using HTTPS.
+
+<img alt="Chat Extensions" src='/assets/chat-extensions.png' width='600px'/>
+
+Chat extensions supports the following configuration options:
+  - *Update Home URL*: the url that hosts your chat extension.  You can remove the URL by leaving the box blank.
+  - *Show Share Button*: if checked, this will show a Facebook share button in the header of your webview.
+  - *In Test*: if checked, your chat extension is in test mode and is only viewable by people associated with your Messenger app in the developer console.  Uncheck this box when you want your chat extension to be viewable to the general public
+
 #### Automatic profile lookup
 
 Profiles are automatically lookedup using Facebook Graph API. The profile of the user can be found in the incoming middleware events: `event.user`
 
 The following properties are available: first_name, last_name, locale, gender, timezone.
- 
+
 #### Save users in Database
 
 Users are automatically persisted in the built-in botpress database using the built-in `bp.db.saveUser` function.
