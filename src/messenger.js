@@ -449,7 +449,7 @@ class Messenger extends EventEmitter {
           image_url: reply.image_url
         }
       }
-      return {}
+      return reply
     })
   }
 
