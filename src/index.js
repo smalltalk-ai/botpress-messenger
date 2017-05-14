@@ -11,9 +11,13 @@ const actions = require('./actions')
 const outgoing = require('./outgoing')
 const incoming = require('./incoming')
 const ngrok = require('./ngrok')
+import Users from './users'
+
 
 let messenger = null
 const outgoingPending = outgoing.pending
+
+let users = null;
 
 const outgoingMiddleware = (event, next) => {
   if (event.platform !== 'facebook') {
@@ -49,6 +53,8 @@ const initializeMessenger = (bp, configurator) => {
   return configurator.loadAll()
   .then(config => {
     messenger = new Messenger(bp, config)
+
+    users = Users(bp, messenger);
 
     // regenerate a new ngrok url and update it to facebook
     if (!config.ngrok || !config.connected) {
@@ -105,6 +111,7 @@ module.exports = {
     autoResponseOption: { type: 'string', required: false, default: 'noResponse' },
     autoResponseText: { type: 'string', required: false, default: 'Hello, human!' },
     autoResponsePostback: { type: 'string', required: false, default: 'YOUR_POSTBACK' },
+    paymentTesters: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
     chatExtensionHomeUrl: { type: 'string', required: false, default: '' },
     chatExtensionInTest: { type: 'bool', required: false, default: true },
     chatExtensionShowShareButton: { type: 'bool', required: false, default: false }
@@ -216,6 +223,24 @@ module.exports = {
       router.get('/homepage', (req, res) => {
         const packageJSON = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')))
         res.send({ homepage: packageJSON.homepage })
+      })
+
+      router.get("/users", (req, res)=> {
+        users.getAllUsers()
+          .then((values) => {
+            res.send(values)
+          })
+          .catch((err) => res.status.send(500).send({ message:err.message }))
+      })
+
+      router.post("/remove_payment_tester", (req, res) => {
+        messenger.deletePaymentTester(req.body.payment_tester)
+          .then((json)=> {
+            res.send(json)
+          })
+          .catch((err) => {
+            res.status(500).send({ message: err.message })
+          })
       })
 
     })

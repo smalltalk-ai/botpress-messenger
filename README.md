@@ -20,7 +20,7 @@ It's also possible to install it through the Botpress UI in the modules section.
 
 To setup connexion of your chatbot to Messenger, you need to fill the connexion settings directly in the module interface. In fact, you only need to follow these 5 steps and your bot will be active.
 
-All the information filled in the UI are store into the database.If you want, you can change your information directly into your database. You can have more information [here](https://github.com/botpress/botpress/blob/master/docs/modules/how-to-configure-my-module.md#where-is-the-configuration-saved--is-the-configuration-persisted-in-database)   
+All the information filled in the UI are store into the database.If you want, you can change your information directly into your database. You can have more information [here](https://github.com/botpress/botpress/blob/master/docs/modules/how-to-configure-my-module.md#where-is-the-configuration-saved--is-the-configuration-persisted-in-database)
 
 <img alt='Connexion settings' src='assets/connexion-settings.png' width='700px'/>
 
@@ -466,6 +466,15 @@ Chat extensions supports the following configuration options:
   - *Update Home URL*: the url that hosts your chat extension.  You can remove the URL by leaving the box blank.
   - *Show Share Button*: if checked, this will show a Facebook share button in the header of your webview.
   - *In Test*: if checked, your chat extension is in test mode and is only viewable by people associated with your Messenger app in the developer console.  Uncheck this box when you want your chat extension to be viewable to the general public
+
+#### Payment Testers
+Using the UI, you can assign users to be ["Payment Testers."](https://developers.facebook.com/docs/messenger-platform/thread-settings/payment#payment_test_users)
+
+In order for this to work, the user must be a registered admin, developer or test user through your Facebook developer console and they must have initiated conversation with your bot.  You cannot just add any user to be a payment tester.  It is also important to note that this is the *only* way to run a test payment with [Messenger Extensions](https://developers.facebook.com/docs/messenger-platform/webview).
+
+<img alt="Payment Testers" src='/assets/payment_testers.png' width='600px'/>
+
+When adding a new user, you can start typing their name into the box.  This will pull up a list of matching users who have been communicating with your bot.  The value in the parentheses is the page-scoped user ID for that user.
 
 #### Automatic profile lookup
 
