@@ -1,8 +1,11 @@
-const checkVersion = require('botpress-version-manager')
+/* global __dirname */
 
-const path = require('path')
-const fs = require('fs')
-const _ = require('lodash')
+import checkVersion from 'botpress-version-manager'
+
+import path from 'path'
+import fs from 'fs'
+import _ from 'lodash'
+
 const uuid = require('uuid')
 const Promise = require('bluebird')
 
@@ -17,7 +20,7 @@ import Users from './users'
 let messenger = null
 const outgoingPending = outgoing.pending
 
-let users = null;
+let users = null
 
 const outgoingMiddleware = (event, next) => {
   if (event.platform !== 'facebook') {
@@ -54,7 +57,7 @@ const initializeMessenger = (bp, configurator) => {
   .then(config => {
     messenger = new Messenger(bp, config)
 
-    users = Users(bp, messenger);
+    users = Users(bp, messenger)
 
     // regenerate a new ngrok url and update it to facebook
     if (!config.ngrok || !config.connected) {
@@ -225,7 +228,7 @@ module.exports = {
         res.send({ homepage: packageJSON.homepage })
       })
 
-      router.get("/users", (req, res)=> {
+      router.get('/users', (req, res)=> {
         users.getAllUsers()
           .then((values) => {
             res.send(values)
@@ -233,7 +236,7 @@ module.exports = {
           .catch((err) => res.status.send(500).send({ message:err.message }))
       })
 
-      router.post("/remove_payment_tester", (req, res) => {
+      router.post('/remove_payment_tester', (req, res) => {
         messenger.deletePaymentTester(req.body.payment_tester)
           .then((json)=> {
             res.send(json)
