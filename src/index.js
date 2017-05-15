@@ -1,19 +1,25 @@
-const checkVersion = require('botpress-version-manager')
+/* global __dirname */
 
-const path = require('path')
-const fs = require('fs')
-const _ = require('lodash')
-const uuid = require('uuid')
-const Promise = require('bluebird')
+import checkVersion from 'botpress-version-manager'
 
-const Messenger = require('./messenger')
-const actions = require('./actions')
-const outgoing = require('./outgoing')
-const incoming = require('./incoming')
-const ngrok = require('./ngrok')
+import path from 'path'
+import fs from 'fs'
+import _ from 'lodash'
+
+import uuid from 'uuid'
+import Promise from 'bluebird'
+
+import Messenger from './messenger'
+import actions from './actions'
+import outgoing from './outgoing'
+import incoming from './incoming'
+import ngrok from './ngrok' // TODO Switch to localtunnel
+import Users from './users'
 
 let messenger = null
 const outgoingPending = outgoing.pending
+
+let users = null
 
 const outgoingMiddleware = (event, next) => {
   if (event.platform !== 'facebook') {
@@ -28,9 +34,7 @@ const outgoingMiddleware = (event, next) => {
     if (event.__id && outgoingPending[event.__id]) {
 
       if (args && args[0] && args[0].message_id) {
-        let ts = args[0].message_id.split(':')[0]
-        ts = ts && ts.substr(4)
-        outgoingPending[event.__id].timestamp = parseInt(ts)
+        outgoingPending[event.__id].timestamp = new Date().getTime() - 1000
         outgoingPending[event.__id].mid = args[0].message_id
       }
 
@@ -42,7 +46,7 @@ const outgoingMiddleware = (event, next) => {
       }
     }
   }
-  
+
   outgoing[event.type](event, next, messenger)
   .then(setValue('resolve'), setValue('reject'))
 }
@@ -51,6 +55,8 @@ const initializeMessenger = (bp, configurator) => {
   return configurator.loadAll()
   .then(config => {
     messenger = new Messenger(bp, config)
+
+    users = Users(bp, messenger)
 
     // regenerate a new ngrok url and update it to facebook
     if (!config.ngrok || !config.connected) {
@@ -106,7 +112,11 @@ module.exports = {
     autoResponse: { type: 'string', required: false, default: 'Hello!' },     // deprecated
     autoResponseOption: { type: 'string', required: false, default: 'noResponse' },
     autoResponseText: { type: 'string', required: false, default: 'Hello, human!' },
-    autoResponsePostback: { type: 'string', required: false, default: 'YOUR_POSTBACK' }
+    autoResponsePostback: { type: 'string', required: false, default: 'YOUR_POSTBACK' },
+    paymentTesters: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
+    chatExtensionHomeUrl: { type: 'string', required: false, default: '' },
+    chatExtensionInTest: { type: 'bool', required: false, default: true },
+    chatExtensionShowShareButton: { type: 'bool', required: false, default: false }
   },
 
   init: function(bp) {
@@ -125,23 +135,33 @@ module.exports = {
 
     bp.messenger = {}
     _.forIn(actions, (action, name) => {
-      bp.messenger[name] = action
-      var sendName = name.replace(/^create/, 'send')
-      bp.messenger[sendName] = Promise.method(function() {
+
+      const applyFn = fn => function() {
         var msg = action.apply(this, arguments)
         msg.__id = new Date().toISOString() + Math.random()
         const resolver = { event: msg }
-        
+
+        // TODO DEPRECATED: Use `msg._promise, msg._resolve instead`
+        // TODO Will be removed in Botpress 1.0+
         const promise = new Promise(function(resolve, reject) {
-          resolver.resolve = resolve
-          resolver.reject = reject
+          resolver.resolve = val => {
+            msg._resolve && msg._resolve(val)
+            resolve(val)
+          }
+          resolver.reject = val => {
+            msg._reject && msg._reject(val)
+            reject(val)
+          }
         })
-        
+
         outgoingPending[msg.__id] = resolver
-        
-        bp.middlewares.sendOutgoing(msg)
-        return promise
-      })
+
+        return fn && fn(msg, promise)
+      }
+
+      var sendName = name.replace(/^create/, 'send')
+      bp.messenger[sendName] = Promise.method(applyFn((msg, promise) => bp.middlewares.sendOutgoing(msg) && promise))
+      bp.messenger[name] = applyFn(msg => msg)
     })
   },
 
@@ -205,6 +225,24 @@ module.exports = {
       router.get('/homepage', (req, res) => {
         const packageJSON = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')))
         res.send({ homepage: packageJSON.homepage })
+      })
+
+      router.get('/users', (req, res)=> {
+        users.getAllUsers()
+          .then((values) => {
+            res.send(values)
+          })
+          .catch((err) => res.status.send(500).send({ message:err.message }))
+      })
+
+      router.post('/remove_payment_tester', (req, res) => {
+        messenger.deletePaymentTester(req.body.payment_tester)
+          .then((json)=> {
+            res.send(json)
+          })
+          .catch((err) => {
+            res.status(500).send({ message: err.message })
+          })
       })
 
     })

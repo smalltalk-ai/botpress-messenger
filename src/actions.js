@@ -1,6 +1,20 @@
-'use strict'
+import _ from 'lodash'
+import Promise from 'bluebird'
 
-const _ = require('lodash')
+const create = obj => {
+  let resolve = null
+  let reject = null
+  const promise = new Promise((r, rj) => {
+    resolve = r
+    reject = rj
+  })
+
+  return Object.assign({
+    _promise: promise,
+    _resolve: resolve,
+    _reject: reject
+  }, obj)
+}
 
 const validateUserId = (userId) => {
   if (!/[0-9]+/.test(userId)) {
@@ -87,7 +101,7 @@ const createText = (userId, text, options) => {
     validateTyping(options.typing)
   }
 
-  return {
+  return create({
     platform: 'facebook',
     type: 'text',
     text: text,
@@ -99,7 +113,7 @@ const createText = (userId, text, options) => {
       waitRead: options && options.waitRead,
       waitDelivery: options && options.waitDelivery
     }
-  }
+  })
 }
 
 const createAttachment = (userId, type, url, options) => {
@@ -124,7 +138,7 @@ const createAttachment = (userId, type, url, options) => {
     validateTyping(options.typing)
   }
 
-  return {
+  return create({
     platform: 'facebook',
     type: 'attachment',
     text: 'Attachment (' + type + ') : ' + url,
@@ -139,7 +153,7 @@ const createAttachment = (userId, type, url, options) => {
       waitRead: options && options.waitRead,
       waitDelivery: options && options.waitDelivery
     }
-  }
+  })
 }
 
 const createTemplate = (userId, payload, options) => {
@@ -150,7 +164,7 @@ const createTemplate = (userId, payload, options) => {
     validateTyping(options.typing)
   }
 
-  return {
+  return create({
     platform: 'facebook',
     type: 'template',
     text: 'Template (' + payload.template_type + ')',
@@ -161,14 +175,14 @@ const createTemplate = (userId, payload, options) => {
       waitRead: options && options.waitRead,
       waitDelivery: options && options.waitDelivery
     }
-  }
+  })
 }
 
 const createTyping = (userId, typing) => {
   validateUserId(userId)
   validateTyping(typing)
 
-  return {
+  return create({
     platform: 'facebook',
     type: 'typing',
     text: 'Typing: ' + typing,
@@ -176,36 +190,36 @@ const createTyping = (userId, typing) => {
       to: userId,
       typing: typing
     }
-  }
+  })
 }
 
 const createSeen = (userId) => {
   validateUserId(userId)
 
-  return {
+  return create({
     platform: 'facebook',
     type: 'seen',
     text: 'Mark as seen',
     raw: {
       to: userId
     }
-  }
+  })
 }
 
 const createPersistentMenu = (elements) => {
   if (!elements) {
-    return {
+    return create({
       platform: 'facebook',
       type: 'persistent_menu',
       text: 'Delete the persistent menu',
       raw: {
         delete: true
       }
-    }
+    })
   }
 
   validatePersistentMenu(elements)
-  return {
+  return create({
     platform: 'facebook',
     type: 'persistent_menu',
     text: 'Set persistent menu: ' + elements.length + ' items',
@@ -213,7 +227,7 @@ const createPersistentMenu = (elements) => {
       delete: false,
       elements: elements
     }
-  }
+  })
 }
 
 const createGreetingText = (text) => {
@@ -221,18 +235,18 @@ const createGreetingText = (text) => {
     throw new Error('Greeting text must be less than 160 chars')
   }
 
-  return {
+  return create({
     platform: 'facebook',
     type: 'greeting_text',
     text: 'Set greeting text: ' + text,
     raw: {
       text: text
     }
-  }
+  })
 }
 
 const createGetStarted = (postback) => {
-  return {
+  return create({
     platform: 'facebook',
     type: 'get_started',
     text: 'Setting get started button: ' + !!postback,
@@ -240,7 +254,7 @@ const createGetStarted = (postback) => {
       enabled: !!postback,
       postback: postback
     }
-  }
+  })
 }
 
 const createWhitelistedDomains = (domains) => {
@@ -248,14 +262,14 @@ const createWhitelistedDomains = (domains) => {
     throw new Error('Expected domains to be a list of string')
   }
 
-  return {
+  return create({
     platform: 'facebook',
     type: 'whitelisted_domains',
     text: 'Setting whitelisted domains',
     raw: {
       domains: domains
     }
-  }
+  })
 }
 
 module.exports = {

@@ -210,7 +210,7 @@ class Messenger extends EventEmitter {
 
   createTargetAudienceSetting() {
     var setting = { target_audience: {} }
-    
+
     switch(this.config.targetAudience){
       case 'openToAll':
         setting.target_audience.audience_type = 'all'
@@ -244,44 +244,38 @@ class Messenger extends EventEmitter {
     return this.sendRequest(setting, 'messenger_profile', 'POST')
   }
 
-  setWhitelistedDomains(domains) {
-    const url = `https://graph.facebook.com/v2.7/me/thread_settings?fields=whitelisted_domains&access_token=${this.config.accessToken}`
-    return fetch(url)
-      .then(this._handleFacebookResponse)
-      .then(res => res.json())
-      .then((json) => {
-        if (json && json.data && json.data[0]) {
-          return json.data[0].whitelisted_domains
-        } else {
-          return []
-        }
-      })
-      .then((oldDomains) => {
-        if (!oldDomains || !oldDomains.length) {
-          return
-        }
+  async setWhitelistedDomains(domains, chatExtensionHomeUrl) {
+    // the chat extension home url is controlled by a different state value
+    // but it still needs to be whitelisted.  It's also possible that this url
+    // has already been whitelisted for another purpose
+    // so we need to check:
+    //    a) that it's set, and
+    //    b) that it's not already in the list
+    if(!_.isEmpty(chatExtensionHomeUrl)) {
+      if(domains.indexOf(chatExtensionHomeUrl) == -1) {
+        domains.push(chatExtensionHomeUrl);
+      }
+    }
 
-        fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            setting_type: 'domain_whitelisting',
-            whitelisted_domains: oldDomains,
-            domain_action_type: 'remove'
-          })
-        })
+    const url = `https://graph.facebook.com/v2.6/me/messenger_profile?access_token=${this.config.accessToken}`
+
+    await fetch(url, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } })
+    .then(this._handleFacebookResponse)
+
+    if (domains.length === 0) {
+      return
+    }
+
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        setting_type: 'domain_whitelisting',
+        whitelisted_domains: domains,
+        domain_action_type: 'add'
       })
-      .then(this._handleFacebookResponse)
-      .then(() => fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          setting_type: 'domain_whitelisting',
-          whitelisted_domains: domains,
-          domain_action_type: 'add'
-        })
-      }))
-      .then(this._handleFacebookResponse)
+    })
+    .then(this._handleFacebookResponse)
   }
 
   setGreetingText(text) {
@@ -332,6 +326,81 @@ class Messenger extends EventEmitter {
     }, 'DELETE')
   }
 
+  /**
+   * Create the settings to add a new chat extension home url
+   *
+   * Within the context of this app the "show_share" is a boolean
+   * but Facebook either wants a
+   */
+  createChatExtensionHomeUrlSetting(home_url, in_test, show_share) {
+    var show_string = "hide"
+    if (show_share == true){
+      show_string = "show"
+    }
+
+    return {
+      "home_url" : {
+        "url": home_url,
+        "webview_height_ratio": "tall",
+        "in_test":in_test,
+        "webview_share_button": show_string
+      }
+    }
+  }
+
+  deleteChatExtensionHomeUrlSetting() {
+    return {
+      "fields": [
+        "home_url"
+      ]
+    }
+  }
+
+  deleteChatExtensionHomeUrl() {
+    const url = `https://graph.facebook.com/v2.7/me/messenger_profile?access_token=${this.config.accessToken}`
+    var setting = this.deleteChatExtensionHomeUrlSetting();
+
+    return this.sendRequest(setting, 'messenger_profile', 'DELETE')
+  }
+
+  setChatExtensionHomeUrl(home_url, in_test, show_share) {
+    const url = `https://graph.facebook.com/v2.7/me/messenger_profile?access_token=${this.config.accessToken}`
+
+    var setting = this.createChatExtensionHomeUrlSetting(home_url, in_test, show_share)
+
+    return this.sendRequest(setting, 'messenger_profile', 'POST')
+  }
+
+  // add and delete payment testers from application
+  // https://developers.facebook.com/docs/messenger-platform/thread-settings/payment#payment_test_users
+  deletePaymentTesterSetting(tester) {
+    return {
+      "setting_type": "payment",
+      "payment_dev_mode_action": "REMOVE",
+      "payment_testers": [tester]
+    }
+  }
+  createPaymentTesterSetting() {
+    return {
+      "setting_type": "payment",
+      "payment_dev_mode_action": "ADD",
+      "payment_testers": this.config.paymentTesters
+    }
+  }
+
+  setPaymentTesters() {
+    if(this.config.paymentTesters.length == 0) {
+      return
+    }
+    const setting = this.createPaymentTesterSetting()
+    return this.sendThreadRequest(setting, "POST")
+
+  }
+  deletePaymentTester(tester) {
+    const setting = this.deletePaymentTesterSetting(tester)
+    return this.sendThreadRequest(setting, "POST")
+  }
+
   updateSettings() {
     const updateGetStarted = () => this.config.displayGetStarted
       ? this.setGetStartedButton()
@@ -348,7 +417,11 @@ class Messenger extends EventEmitter {
 
     const updateTargetAudience = () => this.setTargetAudience()
 
-    const updateTrustedDomains = () => this.setWhitelistedDomains(this.config.trustedDomains)
+    const updateTrustedDomains = () => this.setWhitelistedDomains(this.config.trustedDomains, this.config.chatExtensionHomeUrl)
+
+    const updateChatExtensionHomeUrl = () => _.isEmpty(this.config.chatExtensionHomeUrl) ? this.deleteChatExtensionHomeUrl() : this.setChatExtensionHomeUrl(this.config.chatExtensionHomeUrl, this.config.chatExtensionInTest, this.config.chatExtensionShowShareButton)
+
+    const updatePaymentTesters = () => this.setPaymentTesters()
 
     let thrown = false
     const contextifyError = (context) => (err) => {
@@ -368,6 +441,11 @@ class Messenger extends EventEmitter {
     .catch(contextifyError('target audience'))
     .then(updateTrustedDomains)
     .catch(contextifyError('trusted domains'))
+    .then(updateChatExtensionHomeUrl)
+    .catch(contextifyError('chat extensions'))
+    .then(updatePaymentTesters)
+    .catch(contextifyError('payment testers'))
+
   }
 
   module(factory) {
@@ -405,7 +483,7 @@ class Messenger extends EventEmitter {
           image_url: reply.image_url
         }
       }
-      return {}
+      return reply
     })
   }
 

@@ -1,6 +1,6 @@
 {
   "name": "botpress-messenger",
-  "version": "2.0.8",
+  "version": "2.0.15",
   "description": "Official Facebook Messenger connector for botpress",
   "main": "bin/node.bundle.js",
   "homepage": "https://github.com/botpress/botpress-messenger",
@@ -12,7 +12,8 @@
   "keywords": [
     "messenger",
     "facebook",
-    "botpress"
+    "botpress",
+    "botpress-connector"
   ],
   "version-manager": {
     "date": "24/02/2017",

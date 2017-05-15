@@ -31,6 +31,8 @@ export default class MessengerModule extends React.Component {
       loading:true,
       message: null,
       error: null,
+      users: [],
+      matchingUsers: [],
       initialStateHash: null
     }
 
@@ -42,8 +44,11 @@ export default class MessengerModule extends React.Component {
     this.handleAddToPersistentMenuList = this.handleAddToPersistentMenuList.bind(this)
     this.handleValidation = this.handleValidation.bind(this)
     this.handleConnection = this.handleConnection.bind(this)
+    this.handlePaymentTesterChange = this.handlePaymentTesterChange.bind(this)
     this.renderPersistentMenuItem = this.renderPersistentMenuItem.bind(this)
     this.renderDomainElement = this.renderDomainElement.bind(this)
+    this.renderAutoComplete = this.renderAutoComplete.bind(this)
+    this.renderPaymentTesterElement = this.renderPaymentTesterElement.bind(this)
     this.handleChangeNGrokCheckBox = this.handleChangeNGrokCheckBox.bind(this)
     this.handleDismissError = this.handleDismissError.bind(this)
     this.renderGetStartedMessage = this.renderGetStartedMessage.bind(this)
@@ -72,6 +77,15 @@ export default class MessengerModule extends React.Component {
         homepage: res.data.homepage
       })
     })
+
+    // get a list of currently available users
+    this.getAxios().get("/api/botpress-messenger/users")
+      .then((res) => {
+        this.setState({
+          users: res.data
+        })
+        console.log(res);
+      })
   }
 
   getStateHash() {
@@ -89,7 +103,11 @@ export default class MessengerModule extends React.Component {
       'targetAudience',
       'targetAudienceOpenToSome',
       'targetAudienceCloseToSome',
-      'trustedDomains'
+      'trustedDomains',
+      'paymentTesters',
+      'chatExtensionHomeUrl',
+      'chatExtensionShowShareButton',
+      'chatExtensionInTest'
     ]
 
     return hashingStateItems.map((i) => {
@@ -100,7 +118,7 @@ export default class MessengerModule extends React.Component {
   handleSaveChanges() {
     this.setState({ loading:true })
 
-    return this.getAxios().post('/api/botpress-messenger/config', _.omit(this.state, 'loading', 'initialStateHash', 'message', 'error'))
+    return this.getAxios().post('/api/botpress-messenger/config', _.omit(this.state, 'loading', 'initialStateHash', 'message', 'error', 'users', 'matchingUsers'))
     .then(() => {
       this.setState({
         message: {
@@ -230,6 +248,49 @@ export default class MessengerModule extends React.Component {
     type.selected = 'postback'
     title.value = ''
     value.value = ''
+  }
+
+  handleAddToPaymentTesterList() {
+    const input = ReactDOM.findDOMNode(this.paymentTesterInput)
+    if (input && input.key !== undefined) {
+      // only add the key if it hasn't already been added
+      if(this.state.paymentTesters.indexOf(input.key) === -1){
+        this.setState({
+          paymentTesters: _.concat(this.state.paymentTesters, input.key)
+        })
+      }
+      input.value = ''
+
+      // clear the matching value state
+      this.setState({
+        matchingUsers: []
+      })
+    }
+  }
+
+  /*Get a list of users that match what the user is typing in*/
+  handlePaymentTesterChange() {
+    const input = ReactDOM.findDOMNode(this.paymentTesterInput)
+    var matching = []
+
+    // if there is text in the field, update the matching contents
+    // we push the indexes only.  It's less space, and we already have the
+    // users in a list, so no reason to duplicate
+    if (input && input.value !== '') {
+      for(var k in this.state.users) {
+        var user = this.state.users[k]
+        var name = (user.first_name + " " + user.last_name).toLowerCase()
+        if(name.indexOf(input.value.toLowerCase()) !== -1) {
+          matching.push(k)
+        }
+      }
+    }
+
+    // update our state.
+    // if there is no input, then this will be an empty list (no matches)
+    this.setState({
+      matchingUsers: matching
+    });
   }
 
   handleDismissError() {
@@ -365,6 +426,40 @@ export default class MessengerModule extends React.Component {
     </ListGroupItem>
   }
 
+  renderPaymentTesterElement(tester) {
+    const removeHandler = () => {
+      this.handleRemoveFromList(tester, 'paymentTesters')
+      this.getAxios().post("/api/botpress-messenger/remove_payment_tester", {"payment_tester": tester})
+        .then((res) => {
+          console.log(res)
+        })
+    }
+
+    const user = this.state.users[tester];
+    if(user === undefined) {
+      return
+    }
+    return <ListGroupItem key={tester}>
+      {user.first_name + " " + user.last_name + " (" + tester + ")"}
+      <Glyphicon className="pull-right" glyph="remove" onClick={removeHandler} />
+    </ListGroupItem>
+  }
+
+  renderAutoComplete(user){
+    const input = ReactDOM.findDOMNode(this.paymentTesterInput);
+    const text = user.first_name + " " + user.last_name + " (" + user.id + ")"
+    return(
+      <ListGroupItem key={user.id} onClick={()=>{
+            input.value = text
+
+            input.key = user.id
+          }
+        }>
+        {text}
+      </ListGroupItem>
+    )
+  }
+
   renderTargetAudience(){
     return (
       <div>
@@ -394,7 +489,7 @@ export default class MessengerModule extends React.Component {
                       value={this.state['targetAudienceCloseToSome']}
                       onChange={this.handleChange} />
                   <HelpBlock>Separate countries by commas. You must use a <a target="_blank" href="https://en.wikipedia.org/wiki/ISO_3166-1#Current_codes">ISO-3361 Alpha 2 code</a>.</HelpBlock>
-                </Col>        
+                </Col>
               </FormGroup>
               :null
             }
@@ -430,6 +525,82 @@ export default class MessengerModule extends React.Component {
         </FormGroup>
       </div>
     )
+  }
+
+  renderPaymentTesters() {
+    if(this.state.paymentTesters === undefined) {
+      this.state.paymentTesters = []
+    }
+
+    const paymentTestersElement = this.state.paymentTesters.map(this.renderPaymentTesterElement)
+
+    const matchingUsers = this.state.matchingUsers.map((idx) => this.renderAutoComplete(this.state.users[idx]))
+    return (
+      <div>
+        <FormGroup>
+          {this.renderLabel('Payment Testers', this.state.homepage+'#payment-testers')}
+          <Col sm={7}>
+            <ControlLabel>Current payment testers:</ControlLabel>
+            <ListGroup>
+              {paymentTestersElement}
+            </ListGroup>
+          </Col>
+        </FormGroup>
+        <FormGroup>
+          <Col smOffset={3} sm={7}>
+            <ControlLabel>Add a new payment tester:</ControlLabel>
+            <FormControl
+              ref={(input) => this.paymentTesterInput = input}
+              type="text"
+              onChange={this.handlePaymentTesterChange} />
+            {matchingUsers}
+            <Button className={style.messengerButton} onClick={() => this.handleAddToPaymentTesterList()}>
+              Add payment tester
+            </Button>
+          </Col>
+        </FormGroup>
+      </div>
+    )
+  }
+
+  /**
+   * Render chat extensions options
+   *
+   * For more info: https://developers.facebook.com/docs/messenger-platform/guides/chat-extensions
+   */
+  renderChatExtensions() {
+    return (<div>
+      <FormGroup>
+        {this.renderLabel('Chat Extensions',
+            this.state.homepage+'#chat-extensions')}
+        <Col sm={7}>
+          <ControlLabel>Update Home URL</ControlLabel>
+          <FormControl name="chatExtensionHomeUrl" type="text"
+            value={this.state.chatExtensionHomeUrl}
+            onChange={this.handleChange}/>
+        </Col>
+      </FormGroup>
+      <FormGroup>
+        <Col smOffset={3} sm={2}>
+          <ControlLabel>Show Share Button</ControlLabel>
+        </Col>
+        <Col sm={7}>
+          <Checkbox name="chatExtensionShowShareButton"
+            checked={this.state.chatExtensionShowShareButton}
+            onChange={this.handleChangeCheckBox} />
+        </Col>
+      </FormGroup>
+      <FormGroup>
+        <Col smOffset={3} sm={2}>
+          <ControlLabel>Test Mode</ControlLabel>
+        </Col>
+        <Col sm={7}>
+          <Checkbox name="chatExtensionInTest"
+            checked={this.state.chatExtensionInTest}
+            onChange={this.handleChangeCheckBox} />
+        </Col>
+      </FormGroup>
+    </div>)
   }
 
   renderPersistentMenuItem(item) {
@@ -524,6 +695,21 @@ export default class MessengerModule extends React.Component {
     </div>
   }
 
+  renderConfigView() {
+    return (
+        <FormGroup>
+          <Col componentClass={ControlLabel} sm={3}>
+            <Button
+              href="/api/botpress-messenger/config"
+              download="botpress-messenger.json" >
+              Download Config
+            </Button>
+          </Col>
+        </FormGroup>
+
+    )
+  }
+
   renderForm() {
     return (
       <Form horizontal>
@@ -552,10 +738,19 @@ export default class MessengerModule extends React.Component {
         </div>
 
         <div className={style.section}>
+          {this.renderHeader('Payments')}
+          <div>
+            {this.renderPaymentTesters()}
+          </div>
+        </div>
+
+        <div className={style.section}>
           {this.renderHeader('Advanced')}
           <div>
             {this.renderTargetAudience()}
             {this.renderTrustedDomainList()}
+            {this.renderChatExtensions()}
+            {this.renderConfigView()}
           </div>
         </div>
       </Form>
