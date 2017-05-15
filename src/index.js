@@ -15,6 +15,7 @@ import outgoing from './outgoing'
 import incoming from './incoming'
 import ngrok from './ngrok' // TODO Switch to localtunnel
 import Users from './users'
+import UMM from './umm'
 
 let messenger = null
 const outgoingPending = outgoing.pending
@@ -163,6 +164,8 @@ module.exports = {
       bp.messenger[sendName] = Promise.method(applyFn((msg, promise) => bp.middlewares.sendOutgoing(msg) && promise))
       bp.messenger[name] = applyFn(msg => msg)
     })
+
+    UMM(bp) // Initializes Messenger in the UMM
   },
 
   ready: function(bp, config) {
