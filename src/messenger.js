@@ -371,6 +371,36 @@ class Messenger extends EventEmitter {
     return this.sendRequest(setting, 'messenger_profile', 'POST')
   }
 
+  // add and delete payment testers from application
+  // https://developers.facebook.com/docs/messenger-platform/thread-settings/payment#payment_test_users
+  deletePaymentTesterSetting(tester) {
+    return {
+      "setting_type": "payment",
+      "payment_dev_mode_action": "REMOVE",
+      "payment_testers": [tester]
+    }
+  }
+  createPaymentTesterSetting() {
+    return {
+      "setting_type": "payment",
+      "payment_dev_mode_action": "ADD",
+      "payment_testers": this.config.paymentTesters
+    }
+  }
+
+  setPaymentTesters() {
+    if(this.config.paymentTesters.length == 0) {
+      return
+    }
+    const setting = this.createPaymentTesterSetting()
+    return this.sendThreadRequest(setting, "POST")
+
+  }
+  deletePaymentTester(tester) {
+    const setting = this.deletePaymentTesterSetting(tester)
+    return this.sendThreadRequest(setting, "POST")
+  }
+
   updateSettings() {
     const updateGetStarted = () => this.config.displayGetStarted
       ? this.setGetStartedButton()
@@ -390,6 +420,8 @@ class Messenger extends EventEmitter {
     const updateTrustedDomains = () => this.setWhitelistedDomains(this.config.trustedDomains, this.config.chatExtensionHomeUrl)
 
     const updateChatExtensionHomeUrl = () => _.isEmpty(this.config.chatExtensionHomeUrl) ? this.deleteChatExtensionHomeUrl() : this.setChatExtensionHomeUrl(this.config.chatExtensionHomeUrl, this.config.chatExtensionInTest, this.config.chatExtensionShowShareButton)
+
+    const updatePaymentTesters = () => this.setPaymentTesters()
 
     let thrown = false
     const contextifyError = (context) => (err) => {
@@ -411,6 +443,8 @@ class Messenger extends EventEmitter {
     .catch(contextifyError('trusted domains'))
     .then(updateChatExtensionHomeUrl)
     .catch(contextifyError('chat extensions'))
+    .then(updatePaymentTesters)
+    .catch(contextifyError('payment testers'))
 
   }
 
