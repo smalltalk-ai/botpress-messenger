@@ -6,16 +6,15 @@ import path from 'path'
 import fs from 'fs'
 import _ from 'lodash'
 
-const uuid = require('uuid')
-const Promise = require('bluebird')
+import uuid from 'uuid'
+import Promise from 'bluebird'
 
-const Messenger = require('./messenger')
-const actions = require('./actions')
-const outgoing = require('./outgoing')
-const incoming = require('./incoming')
-const ngrok = require('./ngrok')
+import Messenger from './messenger'
+import actions from './actions'
+import outgoing from './outgoing'
+import incoming from './incoming'
+import ngrok from './ngrok' // TODO Switch to localtunnel
 import Users from './users'
-
 
 let messenger = null
 const outgoingPending = outgoing.pending

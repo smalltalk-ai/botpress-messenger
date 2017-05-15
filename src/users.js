@@ -67,8 +67,6 @@ module.exports = function(bp, messenger) {
 
       })
     }),
-    getAllUsers: Promise.method((userId) => {
-      return userProfiles
-    })
+    getAllUsers: Promise.resolve(userProfiles)
   }
 }
