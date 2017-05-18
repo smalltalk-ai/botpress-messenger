@@ -228,7 +228,7 @@ module.exports = {
       })
 
       router.get('/users', (req, res)=> {
-        users.getAllUsers()
+        users.getAllUsers
           .then((values) => {
             res.send(values)
           })
