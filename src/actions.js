@@ -120,14 +120,14 @@ const createAttachment = (userId, type, url, options) => {
   validateUserId(userId)
   validateAttachmentType(type)
   
-  if( _.isNull(url) && !(options && options.attachmentId) ){
+  if ( _.isNull(url) && !(options && options.attachmentId) ) {
     throw new Error('If URL is null, you must pass an attachment_id on options object')
   }
-  else if( options && options.attachmentId ){
+  else if ( options && options.attachmentId ) {
     validateText(options.attachmentId)
   }
-  else{
-    validateUrl(url);
+  else {
+    validateUrl(url)
   }
 
   if (options && options.quick_replies) {
