@@ -401,6 +401,10 @@ class Messenger extends EventEmitter {
     return this.sendThreadRequest(setting, "POST")
   }
 
+  getPageDetails(){
+    return this._getPage()
+  }
+
   updateSettings() {
     const updateGetStarted = () => this.config.displayGetStarted
       ? this.setGetStartedButton()
@@ -694,6 +698,15 @@ class Messenger extends EventEmitter {
     const url = 'https://graph.facebook.com/v2.6/me/subscribed_apps?access_token=' + this.config.accessToken
 
     return fetch(url, { method: 'DELETE' })
+    .then(this._handleFacebookResponse)
+    .then(res => res.json())
+    .catch(err => console.log(err))
+  }
+
+  _getPage() {
+    const url = 'https://graph.facebook.com/v2.6/me/?access_token=' + this.config.accessToken
+
+    return fetch(url, { method: 'GET' })
     .then(this._handleFacebookResponse)
     .then(res => res.json())
     .catch(err => console.log(err))
