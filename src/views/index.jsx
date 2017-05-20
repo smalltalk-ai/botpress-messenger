@@ -52,6 +52,8 @@ export default class MessengerModule extends React.Component {
     this.handleChangeNGrokCheckBox = this.handleChangeNGrokCheckBox.bind(this)
     this.handleDismissError = this.handleDismissError.bind(this)
     this.renderGetStartedMessage = this.renderGetStartedMessage.bind(this)
+    this.getPageDetails = this.getPageDetails.bind(this)
+
   }
 
   getAxios() {
@@ -84,8 +86,8 @@ export default class MessengerModule extends React.Component {
         this.setState({
           users: res.data
         })
-        console.log(res);
       })
+
   }
 
   getStateHash() {
@@ -118,7 +120,7 @@ export default class MessengerModule extends React.Component {
   handleSaveChanges() {
     this.setState({ loading:true })
 
-    return this.getAxios().post('/api/botpress-messenger/config', _.omit(this.state, 'loading', 'initialStateHash', 'message', 'error', 'users', 'matchingUsers'))
+    return this.getAxios().post('/api/botpress-messenger/config', _.omit(this.state, 'loading', 'initialStateHash', 'message', 'error', 'users', 'matchingUsers', 'pageDetails'))
     .then(() => {
       this.setState({
         message: {
@@ -165,6 +167,16 @@ export default class MessengerModule extends React.Component {
     .catch(err => {
       this.setState({ error: err.response.data.message, loading: false })
     })
+  }
+
+  // get the page details for the page associated with this access token
+  getPageDetails() {
+    return this.getAxios().get("/api/botpress-messenger/facebook_page")
+      .then((json) => {
+        this.setState({
+          pageDetails: json.data
+        })
+      })
   }
 
   handleConnection(event) {
@@ -710,6 +722,36 @@ export default class MessengerModule extends React.Component {
     )
   }
 
+  // render details about the Facebook page that the
+  // Access Token is connected to
+  // these values are useful when submitting bugs to Facebook
+  renderFacebookPageDetails() {
+    var content = this.state.pageDetails ? (
+        <Col sm={7} smOffset={3}>
+          <ControlLabel>Page Name</ControlLabel>
+          <FormControl name="fbPageName" type="text"
+            value={this.state.pageDetails.name}
+            disabled="disabled"/>
+          <ControlLabel>Page ID</ControlLabel>
+            <FormControl name="fbPageID" type="text"
+              value={this.state.pageDetails.id}
+              disabled="disabled"/>
+        </Col>
+      ) : (<div></div>)
+
+    return (
+      <FormGroup>
+        {this.renderLabel('Facebook Page Details','')}
+        <Col sm={7}>
+          <Button className={style.messengerButton} onClick={this.getPageDetails}>Get Facebook Page Details</Button>
+        </Col>
+
+        {content}
+
+      </FormGroup>
+    )
+  }
+
   renderForm() {
     return (
       <Form horizontal>
@@ -734,6 +776,7 @@ export default class MessengerModule extends React.Component {
             {this.renderCheckBox('Persistent menu', 'persistentMenu', this.state.homepage+'#persistent-menu')}
             {this.state.persistentMenu && this.renderPersistentMenuList()}
             {this.renderCheckBox('Automatically mark as read', 'automaticallyMarkAsRead', this.state.homepage+'#automatically-mark-as-read')}
+            {this.renderFacebookPageDetails()}
           </div>
         </div>
 
