@@ -245,6 +245,16 @@ module.exports = {
           })
       })
 
+      router.get('/facebook_page', (req, res) => {
+        messenger._getPage()
+          .then((json) => {
+            res.send(json)
+          })
+          .catch((err) => {
+            res.status(500).send({ message: err.message })
+          })
+      })
+
     })
 
   }
