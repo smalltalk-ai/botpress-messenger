@@ -3,12 +3,34 @@ import _ from 'lodash'
 
 import actions from './actions'
 
+const QUICK_REPLY_PAYLOAD = /\<(.+)\>\s(.+)/i
+
 function processButtons(buttons, blocName) {
 
 }
 
-function processQuickReplies(quick_replies, message, blocName) {
+function processQuickReplies(qrs, blocName) {
+  if (!_.isArray(qrs)) {
+    throw new Error('Expected quick_replies to be an array')
+  }
 
+  return qrs.map(qr => {
+    if (_.isString(qr) && QUICK_REPLY_PAYLOAD.test(qr)) {
+      let [, payload, text] = QUICK_REPLY_PAYLOAD.exec(qr)
+      
+      // <.HELLO> becomes <BLOCNAME.HELLO>
+      if (payload.startsWith('.')) {
+        payload = blocName + payload
+      }
+
+      return {
+        title: text,
+        payload: payload.toUpperCase()
+      }
+    }
+
+    return qr
+  })
 }
 
 function getUserId(event) {
@@ -22,9 +44,11 @@ function getUserId(event) {
   if (!userId) {
     throw new Error('Could not find userId in the incoming event.')
   }
+
+  return userId
 }
 
-function processOutgoing({ event, blocName, instruction, messages }) {
+function processOutgoing({ event, blocName, instruction }) {
   const ins = Object.assign({}, instruction) // Create a shallow copy of the instruction
 
   ////////
@@ -43,6 +67,10 @@ function processOutgoing({ event, blocName, instruction, messages }) {
   
   for (let prop of optionsList) {
     delete ins[prop]
+  }
+
+  if (options.quick_replies) {
+    options.quick_replies = processQuickReplies(options.quick_replies, blocName)
   }
 
   /////////
@@ -89,7 +117,7 @@ module.exports = bp => {
   const [umm, registerConnector] = _.at(bp, ['umm', 'umm.registerConnector'])
 
   umm && registerConnector && registerConnector({
-    platform: 'messenger',
+    platform: 'facebook',
     processOutgoing: args => processOutgoing(Object.assign({}, args, { bp })),
     templates: []
   })
