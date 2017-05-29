@@ -6,7 +6,13 @@ import actions from './actions'
 const QUICK_REPLY_PAYLOAD = /\<(.+)\>\s(.+)/i
 
 function processButtons(buttons, blocName) {
+  return processQuickReplies(buttons, blocName).map(button => {
+    if (button.payload && button.title && _.isNil(button.type)) {
+      return Object.assign(button, { type: 'postback' })
+    }
 
+    return button
+  })
 }
 
 function processQuickReplies(qrs, blocName) {
@@ -30,6 +36,25 @@ function processQuickReplies(qrs, blocName) {
     }
 
     return qr
+  })
+}
+
+function amendButtons(obj, blocName) {
+  if (!_.isPlainObject(obj)) {
+    return obj
+  }
+
+  return _.mapValues(obj, (value, key) => {
+    if (_.isPlainObject(value)) {
+      return amendButtons(value, blocName)
+    } else if (_.isArray(value)) {
+      if (key === 'buttons') {
+        return amendButtons(processButtons(value, blocName))
+      }
+      return value.map(v => amendButtons(v, blocName))
+    } else {
+      return value
+    }
   })
 }
 
@@ -78,7 +103,8 @@ function processOutgoing({ event, blocName, instruction }) {
   /////////
   
   if (!_.isNil(instruction.template_type)) {
-    return actions.createTemplate(getUserId(event), ins, options)
+    const data = amendButtons(ins, blocName)
+    return actions.createTemplate(getUserId(event), data, options)
   }
 
   for (let attr of ['image', 'audio', 'video', 'file']) {
