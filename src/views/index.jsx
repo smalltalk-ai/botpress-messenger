@@ -20,6 +20,8 @@ import {
 import _ from 'lodash'
 import Promise from 'bluebird'
 
+import PersistentMenuModal from './PersistentMenu/modal'
+
 import style from './style.scss'
 
 export default class MessengerModule extends React.Component {
@@ -33,7 +35,8 @@ export default class MessengerModule extends React.Component {
       error: null,
       users: [],
       matchingUsers: [],
-      initialStateHash: null
+      initialStateHash: null,
+      showPersistentMenuModal: false
     }
 
     this.handleChange = this.handleChange.bind(this)
@@ -118,9 +121,20 @@ export default class MessengerModule extends React.Component {
   }
 
   handleSaveChanges() {
-    this.setState({ loading:true })
+    this.setState({ loading: true })
 
-    return this.getAxios().post('/api/botpress-messenger/config', _.omit(this.state, 'loading', 'initialStateHash', 'message', 'error', 'users', 'matchingUsers', 'pageDetails'))
+    const omitFields = [
+      'loading',
+      'initialStateHash',
+      'message',
+      'error',
+      'users',
+      'matchingUsers',
+      'pageDetails',
+      'showPersistentMenuModal'
+    ]
+
+    return this.getAxios().post('/api/botpress-messenger/config', _.omit(this.state, ...omitFields))
     .then(() => {
       this.setState({
         message: {
@@ -626,6 +640,19 @@ export default class MessengerModule extends React.Component {
       </ListGroupItem>
   }
 
+  addMenuItem() {
+    this.setState({ showPersistentMenuModal: true })
+
+    // setTimeout(() => {
+    //   this.setState({ showPersistentMenuModal: false })
+    // }, 2000)
+  }
+
+  onClosePersistentMenuModal() {
+    console.log('on Close called')
+    this.setState({ showPersistentMenuModal: false })
+  }
+
   renderPersistentMenuList() {
     return (
       <div>
@@ -639,6 +666,16 @@ export default class MessengerModule extends React.Component {
         </FormGroup>
         <FormGroup>
           <Col smOffset={3} sm={7}>
+            <Button className='bp-button' onClick={::this.addMenuItem}>
+              Add Menu Item
+            </Button>
+          </Col>
+        </FormGroup>
+      </div>
+    )
+
+    /* <FormGroup>
+          <Col smOffset={3} sm={7}>
             <ControlLabel>Add a new item:</ControlLabel>
             <FormControl ref={r => this.newPersistentMenuType = r} componentClass="select" placeholder="postback">
               <option value="postback">Postback</option>
@@ -650,9 +687,7 @@ export default class MessengerModule extends React.Component {
               Add to menu
             </Button>
           </Col>
-        </FormGroup>
-      </div>
-    )
+        </FormGroup> */
   }
 
   renderSaveButton() {
@@ -827,6 +862,7 @@ export default class MessengerModule extends React.Component {
       {this.renderUnsavedAlert()}
       {this.renderMessageAlert()}
       {this.renderForm()}
+      <PersistentMenuModal show={this.state.showPersistentMenuModal} onHide={::this.onClosePersistentMenuModal} />
     </div>
   }
 
