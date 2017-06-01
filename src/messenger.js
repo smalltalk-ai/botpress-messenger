@@ -312,18 +312,21 @@ class Messenger extends EventEmitter {
 
   setPersistentMenu(buttons) {
     const formattedButtons = this._formatButtons(buttons)
-    return this.sendThreadRequest({
-      setting_type: 'call_to_actions',
-      thread_state: 'existing_thread',
-      call_to_actions: formattedButtons
-    })
+    return this.sendRequest({
+      persistent_menu: [
+        { // TODO Allow setting multiple menues for different locales
+          locale: 'default',
+          composer_input_disabled: false, // TODO Make this editable
+          call_to_actions: buttons
+        }
+      ]
+    }, 'messenger_profile')
   }
 
   deletePersistentMenu() {
-    return this.sendThreadRequest({
-      setting_type: 'call_to_actions',
-      thread_state: 'existing_thread'
-    }, 'DELETE')
+    return this.sendRequest({
+      "fields":[ "persistent_menu" ]
+    }, 'messenger_profile', 'DELETE')
   }
 
   /**
