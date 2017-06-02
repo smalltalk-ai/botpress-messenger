@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import Promise from 'bluebird'
+import outgoing from './outgoing'
 
 const create = obj => {
   let resolve = null
@@ -9,11 +10,22 @@ const create = obj => {
     reject = rj
   })
 
-  return Object.assign({
+  const messageId = new Date().toISOString() + Math.random()
+  
+  const newEvent = Object.assign({
     _promise: promise,
     _resolve: resolve,
-    _reject: reject
+    _reject: reject,
+    __id: messageId
   }, obj)
+
+  outgoing.pending[messageId] = {
+    event: newEvent,
+    resolve: resolve,
+    reject: reject
+  }
+
+  return newEvent
 }
 
 const validateUserId = (userId) => {
@@ -120,14 +132,14 @@ const createAttachment = (userId, type, url, options) => {
   validateUserId(userId)
   validateAttachmentType(type)
   
-  if( _.isNull(url) && !(options && options.attachmentId) ){
+  if ( _.isNull(url) && !(options && options.attachmentId) ) {
     throw new Error('If URL is null, you must pass an attachment_id on options object')
   }
-  else if( options && options.attachmentId ){
+  else if ( options && options.attachmentId ) {
     validateText(options.attachmentId)
   }
-  else{
-    validateUrl(url);
+  else {
+    validateUrl(url)
   }
 
   if (options && options.quick_replies) {

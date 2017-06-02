@@ -196,7 +196,7 @@ class Messenger extends EventEmitter {
       : Promise.resolve(true)
 
     return before
-    .delay(timeout)
+    .delay(timeout + 1000)
     .then(() => this.sendAction(recipientId, 'typing_off'))
   }
 

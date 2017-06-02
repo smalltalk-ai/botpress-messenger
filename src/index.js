@@ -15,6 +15,7 @@ import outgoing from './outgoing'
 import incoming from './incoming'
 import ngrok from './ngrok' // TODO Switch to localtunnel
 import Users from './users'
+import UMM from './umm'
 
 let messenger = null
 const outgoingPending = outgoing.pending
@@ -138,24 +139,7 @@ module.exports = {
 
       const applyFn = fn => function() {
         var msg = action.apply(this, arguments)
-        msg.__id = new Date().toISOString() + Math.random()
-        const resolver = { event: msg }
-
-        // TODO DEPRECATED: Use `msg._promise, msg._resolve instead`
-        // TODO Will be removed in Botpress 1.0+
-        const promise = new Promise(function(resolve, reject) {
-          resolver.resolve = val => {
-            msg._resolve && msg._resolve(val)
-            resolve(val)
-          }
-          resolver.reject = val => {
-            msg._reject && msg._reject(val)
-            reject(val)
-          }
-        })
-
-        outgoingPending[msg.__id] = resolver
-
+        const promise = msg._promise
         return fn && fn(msg, promise)
       }
 
@@ -163,6 +147,8 @@ module.exports = {
       bp.messenger[sendName] = Promise.method(applyFn((msg, promise) => bp.middlewares.sendOutgoing(msg) && promise))
       bp.messenger[name] = applyFn(msg => msg)
     })
+
+    UMM(bp) // Initializes Messenger in the UMM
   },
 
   ready: function(bp, config) {
