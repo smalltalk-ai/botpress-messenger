@@ -19,6 +19,9 @@ import {
 } from 'react-bootstrap'
 import _ from 'lodash'
 import Promise from 'bluebird'
+import classnames from 'classnames'
+
+import UMMComponent from './UMM'
 
 import style from './style.scss'
 
@@ -832,5 +835,15 @@ export default class MessengerModule extends React.Component {
 
   render() {
     return this.state.loading ? null : this.renderAllContent()
+  }
+}
+
+export class UMMOutgoing extends React.Component {
+  constructor(props) {
+    super()
+  }
+
+  render() {
+    return <UMMComponent {...this.props} />
   }
 }
