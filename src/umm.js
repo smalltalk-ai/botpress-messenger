@@ -139,12 +139,37 @@ function processOutgoing({ event, blocName, instruction }) {
   throw new Error(`Unrecognized instruction on Facebook Messenger in bloc '${blocName}': ${strRep}`)
 }
 
+////////////
+/// TEMPLATES
+////////////
+
+function getTemplates() {
+  return [
+    {
+      type: 'Text - Single message',
+      template: '{{BLOCK_NAME}}:\n\t- {{TEXT}}'
+    },{
+      type: 'Text - Multiple messages',
+      template: '{{BLOCK_NAME}}:\n\t- {{TEXT_1}}\n\t{{TEXT_2}}'
+    },{
+      type: 'Text - Random message',
+      template: '{{BLOCK_NAME}}:\n\t- text:\t\n- {{TEXT_1}}\n\t- {{TEXT_2}}'
+    },{
+      type: 'Typing - Between messages',
+      template: '{{BLOCK_NAME}}:\n\t- text: {{TEXT_1}}\n\t- typing: {{1000ms}}\n\t- text: {{TEXT_2}}'
+    },{
+      type: 'Quick replies',
+      template: '{{BLOCK_NAME}}:\n\t- text: {{TEXT}}\n\t- quick_replies:\n\t\t- <{{POSTBACK_1}}> {{BUTTON_1}}\n\t\t- <{{POSTBACK_2}}> {{BUTTON_2}}'
+    }
+  ]
+}
+
 module.exports = bp => {
   const [umm, registerConnector] = _.at(bp, ['umm', 'umm.registerConnector'])
 
   umm && registerConnector && registerConnector({
     platform: 'facebook',
     processOutgoing: args => processOutgoing(Object.assign({}, args, { bp })),
-    templates: []
+    templates: getTemplates()
   })
 }
