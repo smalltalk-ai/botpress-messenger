@@ -85,7 +85,9 @@ function processOutgoing({ event, blocName, instruction }) {
     'waitRead', 
     'waitDelivery', 
     'typing', 
-    'tag'
+    'tag',
+    '__platformSpecific',
+    'on'
   ]
 
   const options = _.pick(instruction, optionsList)
