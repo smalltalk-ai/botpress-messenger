@@ -15,26 +15,37 @@ export default class UMMComponent extends Component {
     super(props)
 
     this.state = {
-      typing: false
+      typing: false,
+      loading: true
     }
   }
 
   componentDidMount() {
+    this.setState({
+      loading: false
+    })
+
     this.setTyping()
   }
 
   setTyping() {
-    if (this.props.raw.typing) {
+    if (!this.state.loading && this.props.raw.typing) {
       this.setState({
         typing: true
       })
-    }
 
-    setTimeout(() => {
-      this.setState({
-        typing: false
-      })
-    }, this.props.raw.typing)
+      setTimeout(() => {
+        this.setState({
+          typing: false
+        })
+      }, this.props.raw.typing)
+    }
+  }
+
+  componentWillUnmount() {
+    this.setState({
+      loading: false
+    })
   }
 
   renderTyping() {
@@ -102,7 +113,10 @@ export default class UMMComponent extends Component {
   }
 
   render() {
-    console.log(this.props)
+    if (this.state.loading) {
+      return null
+    }
+
     const classNames = classnames(style.component, 'bp-messenger-component')
     return <div className={classNames}>
         {this.renderComponent()}
