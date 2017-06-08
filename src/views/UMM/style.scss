@@ -1,15 +1,49 @@
 $bg-color-messenger: #0084FF;
 $color-messenger: #fff;
 
+@mixin messenger-bubble() {
+  background-color: $bg-color-messenger;
+  color: $color-messenger;
+  border-radius: 1.3em;
+  display: inline-block;
+  padding: 6px 12px;
+
+  min-height: 32px;
+  min-width: 50px;
+}
+
 .component {
   padding-bottom: 5px;
 
   .text {
-    background-color: $bg-color-messenger;
-    color: $color-messenger;
-    
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 1.3em;
+    @include messenger-bubble();
+  }
+
+  .typing {
+    @include messenger-bubble();
+    text-align: center;
+
+    .spinner {
+      color: #FFFFFF;
+
+      div {
+        width: 10px;
+        height: 10px;
+      }
+    }
+  }
+
+  .quickReplies {
+    padding-top: 5px;
+    button {
+      @include messenger-bubble();
+      margin-right: 5px;
+      opacity: 1;
+
+      &:hover {
+        background-color: #0084FF;
+        opacity: 0.8;
+      }
+    }
   }
 }
