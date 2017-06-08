@@ -147,19 +147,19 @@ function getTemplates() {
   return [
     {
       type: 'Text - Single message',
-      template: 'block_name:\n\t- TEXT'
+      template: 'block_name_sm:\n\  - Text goes here..'
     },{
       type: 'Text - Multiple messages',
-      template: 'block_name:\n\t- TEXT_1\n\tTEXT_2'
+      template: 'block_name_mm:\n  - Text goes here..(1)\n  - Text goes here..(2)'
     },{
       type: 'Text - Random message',
-      template: 'block_name:\n\t- text:\n\t- TEXT_1\n\t- TEXT_2'
+      template: 'block_name_rm:\n  - text:\n    - Text goes here..(1)\n    - Text goes here..(2)'
     },{
-      type: 'Typing - Between messages',
-      template: 'block_name:\n\t- text: TEXT_1\n\t- typing: 1000ms\n\t- text: TEXT_2'
+      type: 'Typing - Message with typing',
+      template: 'block_name_bm:\n  - text: Text goes here..(1)\n    typing: 1000ms'
     },{
       type: 'Quick replies',
-      template: 'block_name:\n\t- text: TEXT\n\t\tquick_replies:\n\t\t- <POSTBACK_1> BUTTON_1\n\t\t- <POSTBACK_2> BUTTON_2\n\n'
+      template: 'block_name_qr:\n  - text: Text goes here..\n    quick_replies:\n    - <POSTBACK_1> Button..(1)\n    - <POSTBACK_2> Button..(2)'
     }
   ]
 }
