@@ -1,9 +1,12 @@
-$bg-color-messenger: #0084FF;
-$color-messenger: #fff;
+$bg-color-gray: #f1f0f0;
+$color-gray: #000;
+
+$bg-color-blue: #0084FF;
+$color-blue: #fff;
 
 @mixin messenger-bubble() {
-  background-color: $bg-color-messenger;
-  color: $color-messenger;
+  background-color: $bg-color-gray;
+  color: $color-gray;
   border-radius: 1.3em;
   display: inline-block;
   padding: 6px 12px;
@@ -24,7 +27,7 @@ $color-messenger: #fff;
     text-align: center;
 
     .spinner {
-      color: #FFFFFF;
+      color: #A9ACAC;
 
       div {
         width: 10px;
@@ -35,13 +38,17 @@ $color-messenger: #fff;
 
   .quickReplies {
     padding-top: 5px;
+
     button {
       @include messenger-bubble();
       margin-right: 5px;
       opacity: 1;
+      min-width: 100px;
+      background-color: $bg-color-blue;
+      color: $color-blue;
 
       &:hover {
-        background-color: #0084FF;
+        background-color: $bg-color-blue;
         opacity: 0.8;
       }
     }

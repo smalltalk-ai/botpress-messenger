@@ -23,10 +23,6 @@ export default class UMMComponent extends Component {
     this.setTyping()
   }
 
-  componentWillReceiveProps() {
-    this.setTyping()
-  }
-
   setTyping() {
     if (this.props.raw.typing) {
       this.setState({
