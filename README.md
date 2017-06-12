@@ -107,12 +107,12 @@ welcome:
 ```yaml
 welcome:
   - on: facebook
-    image: https://url.to/image
+    image: https://botpress.io/static/img/nobg_primary_black.png
   - on: facebook
-    video: https://url.to/image
+    video: https://www.youtube.com/watch?v=QIokUU4HAKU
   - on: facebook
     attachment: video
-    url: https://url.to/image
+    url: https://www.youtube.com/watch?v=QIokUU4HAKU
 ```
 
 ## Installation
