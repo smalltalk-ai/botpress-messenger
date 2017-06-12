@@ -4,6 +4,9 @@ $color-gray: #000;
 $bg-color-blue: #0084FF;
 $color-blue: #fff;
 
+$color-link: #6ca7f9;
+$color-link-hover: #5687CB;
+
 @mixin messenger-bubble() {
   background-color: $bg-color-gray;
   color: $color-gray;
@@ -50,6 +53,42 @@ $color-blue: #fff;
       &:hover {
         background-color: $bg-color-blue;
         opacity: 0.8;
+      }
+    }
+  }
+
+  .template {
+    max-width: 220px;
+    border: solid 1px $bg-color-gray;
+    border-radius: 20px;
+    
+    .header {
+      padding: 5px 10px;
+      display: block;
+      background-color: $bg-color-gray;
+      border-top-right-radius: 20px;
+      border-top-left-radius: 20px;
+    }
+
+    .button {
+      button {
+        padding: 5px 10px;
+        text-align: center;
+        float: none;
+        display: block;
+        width: 100%;
+        background-color: white;
+        color: $color-link;
+        
+        border-radius: 0;
+        border-bottom-right-radius: 20px;
+        border-bottom-left-radius: 20px;
+
+        border-top: solid 1px $bg-color-gray;
+
+        &:hover {
+          color: $color-link-hover;
+        }
       }
     }
   }

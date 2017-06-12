@@ -77,7 +77,7 @@ export default class UMMComponent extends Component {
       </div>
   }
 
-  renderButton({ title, payload }, key) {
+  renderQuickRepliesButton({ title, payload }, key) {
     const tooltip = <Tooltip id="tooltip">
       On click, payload event <strong>{payload}</strong> is emitted.
     </Tooltip>
@@ -95,18 +95,78 @@ export default class UMMComponent extends Component {
     const classNames = classnames(style.quickReplies, 'bp-messenger-quick-replies')
     
     return <div className={classNames}>
-        {this.props.raw.quick_replies.map(this.renderButton)}
+        {this.props.raw.quick_replies.map(this.renderQuickRepliesButton)}
+      </div>
+  }
+
+
+  renderGenericButton({title, payload, url, type}, key) {
+    const tooltip = <Tooltip id="tooltip">
+      On click, payload <strong>{type}</strong> event <strong>{payload || url}</strong> is emitted.
+    </Tooltip>
+
+    return <OverlayTrigger key={key} placement="top" overlay={tooltip}>
+      <Button>{title}</Button>
+    </OverlayTrigger>
+  }
+
+  renderTemplateButton() {
+    const classNames = classnames({
+      [style.button]: true,
+      'bp-messenger-template-button': true
+    })
+
+    const headerClassNames = classnames({
+      [style.header]: true,
+      'bp-messenger-template-button-header': true
+    })
+
+    return <div className={classNames}>
+        <div className={headerClassNames}>
+          {this.props.raw.payload.text || ''}
+        </div>
+        {this.props.raw.payload.buttons.map(::this.renderGenericButton)}
+      </div>
+  }
+
+  renderTemplate() {
+    const classNames = classnames({
+      [style.template]: true, 
+      'bp-messenger-template': true
+    })
+    
+    if (this.state.typing) {
+      return this.renderTyping()
+    }
+
+    let template = null
+
+    switch (this.props.raw.payload.template_type) {
+      case 'button':
+        template = this.renderTemplateButton()
+        break
+      default: 
+        template = this.renderNotSupported()
+    }
+
+    return <div>
+        <div className={classNames}>
+          {template}
+        </div>
+        {this.renderQuickReplies()}
       </div>
   }
 
   renderNotSupported() {
-    return <div>Not supported yet</div>
+    return <div>Visual preview is not supported yet</div>
   }
 
   renderComponent() {
     switch (this.props.type) {
     case 'text':
       return this.renderText()
+    case 'template':
+      return this.renderTemplate()
     default:
       return this.renderNotSupported()
     }   
