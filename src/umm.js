@@ -109,12 +109,12 @@ function processOutgoing({ event, blocName, instruction }) {
 
   for (let attr of ['image', 'audio', 'video', 'file']) {
     if (!_.isNil(instruction[attr])) {
-      return actions.createAttachement(getUserId(event), attr, ins[attr], options)
+      return actions.createAttachment(getUserId(event), attr, ins[attr], options)
     }
   }
 
   if (!_.isNil(instruction.attachment)) {
-    return actions.createAttachement(
+    return actions.createAttachment(
       getUserId(event),
       instruction.type || instruction.attachment,
       ins.url || instruction.attachment,
