@@ -1,8 +1,119 @@
 # botpress-messenger
 
+<img src="https://cdn.rawgit.com/botpress/botpress/7e007114/assets/supports_UMM.png" height="60px" />
+
 Official Facebook Messenger connector module for [Botpress](http://github.com/botpress/botpress).
 
 This module has been build to accelerate and facilitate development of Messenger bots.
+
+## Usage with UMM
+
+There's 3 supported UMM messages: text, attachments and templates. For doing anything else, please use code (see the other methods supported in `bp.messenger` below).
+
+> **Note on Messenger UMM**
+> 
+> All of the Messenger messages support the **`typing`** option. You can specify `true` a number (of milliseconds) or a natural duration string (e.g. `4s`).
+
+#### Sending Text
+##### `content.yml`
+
+```yaml
+welcome:
+  - Hello, world!
+  - This is a message on Messenger!
+  - text: this works too!
+    typing: 2s
+  - |
+    This is a multi-line
+    message :).
+```
+
+#### Sending Text with [Quick Replies](https://developers.facebook.com/docs/messenger-platform/send-api-reference/quick-replies)
+
+> **Tip:** We created a shortcut for specifying quick replies and their payloads.
+>
+>> <EXAMPLE_PAYLOAD> This is the text
+>> <.EXAMPLE_PAYLOAD> Text
+> In the latter, starting the payload with a dot (`.`) will prepend the name of the bloc to the postback
+
+##### `content.yml`
+
+```yaml
+welcome:
+  - text: Hello, world!
+    typing: 250ms
+    quick_replies:
+      - <QR_YES> Yes
+      - <QR_NO> No
+```
+
+##### `content.yml`
+
+```yaml
+welcome:
+  - text: Hello, world!
+    quick_replies:
+      - <.QR_YES> Yes
+      - <.QR_NO> No
+```
+
+In this example, the payloads will be `welcome.QR_YES` and `welcome.QR_NO` respectively.
+
+##### `content.yml`
+
+```yaml
+welcome:
+  - text: Hello, world!
+    quick_replies:
+      - content_type: text
+        title: Yes
+        payload: QR_YES
+      - content_type: text
+        title: No
+        payload: QR_NO
+        image_url: http://petersfantastichats.com/img/green.png
+      - content_type: location
+```
+
+#### Sending [Templates](https://developers.facebook.com/docs/messenger-platform/send-api-reference/templates)
+
+> **Tip:** We created a shortcut for specifying buttons and their payload (same as quick replies)
+>
+>> <EXAMPLE_PAYLOAD> This is the text
+
+##### `content.yml`
+
+```yaml
+welcome:
+  - on: facebook
+    template_type: button
+    text: Please click any of the buttons below
+    buttons:
+      - <BTN_RANDOM> Random cat videos
+      - type: postback
+        title: This button gives the same thing
+        payload: BTN_RANDOM
+      - type: web_url
+        url: https://youtube.com/?q=cats
+        title: Cats on Youtube
+```
+
+#### Sending [Attachments](https://developers.facebook.com/docs/messenger-platform/send-api-reference/attachment-upload)
+
+> **Tip:** We created shortcuts for all the attachment types (see examples)
+
+##### `content.yml`
+
+```yaml
+welcome:
+  - on: facebook
+    image: https://botpress.io/static/img/nobg_primary_black.png
+  - on: facebook
+    video: https://www.youtube.com/watch?v=QIokUU4HAKU
+  - on: facebook
+    attachment: video
+    url: https://www.youtube.com/watch?v=QIokUU4HAKU
+```
 
 ## Installation
 
