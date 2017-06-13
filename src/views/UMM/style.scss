@@ -1,4 +1,5 @@
 $color-light-gray: #f1f0f0;
+$color-gray: #B8B6B9;
 $color-black: #000;
 $color-blue: #0084FF;
 $color-white: #fff;
@@ -19,23 +20,17 @@ $color-blue-hover: #036ED3;
 
 .component {
   padding-bottom: 5px;
+  position: relative;
 
   .text {
     @include messenger-bubble();
   }
 
   .typing {
-    @include messenger-bubble();
-    text-align: center;
-
-    .spinner {
-      color: $color-white;
-
-      div {
-        width: 10px;
-        height: 10px;
-      }
-    }
+    color: $color-gray;
+    position: absolute;
+    top: 7px;
+    right: 10px;
   }
 
   .quickReplies {

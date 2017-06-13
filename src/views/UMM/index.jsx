@@ -31,7 +31,6 @@ export default class UMMComponent extends Component {
     })
 
     if (this.props.raw && this.props.raw.payload && this.props.raw.payload.elements) {
-      console.log('here')
       this.setState({
         selected: 0,
         size: _.size(this.props.raw.payload.elements)
@@ -52,33 +51,24 @@ export default class UMMComponent extends Component {
   }
 
   renderTyping() {
+    if (!this.props.raw.typing) {
+      return null
+    }
+
     const classNames = classnames({
       [style.typing]: true,
       'bp-messenger-typing': true
     })
 
     const tooltip = <Tooltip id="tooltip">
-      On click, payload event <strong>{payload}</strong> is emitted.
+      Typing for <strong>{this.props.raw.typing}</strong> seconds...
     </Tooltip>
 
-    return <OverlayTrigger key={key} placement="top" overlay={tooltip}>
-      <Glyphicon glyph='pencil' />
-    </OverlayTrigger>
-  }
-
-  renderWaiting() {
-    const classNames = classnames({
-      [style.waiting]: true,
-      'bp-messenger-waiting': true
-    })
-
-    const tooltip = <Tooltip id="tooltip">
-      On click, payload event <strong>{payload}</strong> is emitted.
-    </Tooltip>
-
-    return <OverlayTrigger key={key} placement="top" overlay={tooltip}>
-      <Glyphicon glyph='time' />
-    </OverlayTrigger>
+    return <div className={classNames}>
+      <OverlayTrigger placement="top" overlay={tooltip}>
+        <Glyphicon glyph='pencil' />
+      </OverlayTrigger>
+    </div>
   }
 
   renderText() {
@@ -226,10 +216,6 @@ export default class UMMComponent extends Component {
       [style.template]: true, 
       'bp-messenger-template': true
     })
-    
-    if (this.state.typing) {
-      return this.renderTyping()
-    }
 
     let template = null
 
@@ -270,10 +256,6 @@ export default class UMMComponent extends Component {
       [style.attachment]: true, 
       'bp-messenger-attachment': true
     })
-    
-    if (this.state.typing) {
-      return this.renderTyping()
-    }
 
     let attachment = null
 
@@ -321,12 +303,10 @@ export default class UMMComponent extends Component {
       return null
     }
 
-    console.log(this.props)
     const classNames = classnames(style.component, 'bp-messenger-component')
     return <div className={classNames}>
         {this.renderComponent()}
         {this.renderTyping()}
-        {this.renderWaiting()}
       </div>
   }
 }
