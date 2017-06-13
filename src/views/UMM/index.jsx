@@ -2,11 +2,15 @@ import { Component } from 'react'
 import { 
   Button,
   Tooltip,
-  OverlayTrigger
+  OverlayTrigger,
+  Glyphicon
 } from 'react-bootstrap'
 
+import _ from 'lodash'
+import ReactPlayer from 'react-player'
+import ReactAudioPlayer from 'react-audio-player'
+
 import classnames from 'classnames'
-import Spinner from 'react-spinkit'
 
 import style from './style.scss'
 
@@ -15,9 +19,10 @@ export default class UMMComponent extends Component {
     super(props)
 
     this.state = {
-      typing: false,
       loading: true
     }
+
+    this.handleSliderChanged = this.handleSliderChanged.bind(this)
   }
 
   componentDidMount() {
@@ -25,38 +30,55 @@ export default class UMMComponent extends Component {
       loading: false
     })
 
-    this.setTyping()
-  }
-
-  setTyping() {
-    if (!this.state.loading && this.props.raw.typing) {
+    if (this.props.raw && this.props.raw.payload && this.props.raw.payload.elements) {
+      console.log('here')
       this.setState({
-        typing: true
+        selected: 0,
+        size: _.size(this.props.raw.payload.elements)
       })
-
-      setTimeout(() => {
-        this.setState({
-          typing: false
-        })
-      }, this.props.raw.typing)
     }
   }
 
   componentWillUnmount() {
     this.setState({
-      loading: false
+      loading: true
+    })
+  }
+
+  handleSliderChanged(value) {
+    this.setState({
+      selected: this.state.selected + value
     })
   }
 
   renderTyping() {
     const classNames = classnames({
-      [style.typing]: this.state.typing,
-      'bp-messenger-typing': this.state.typing
+      [style.typing]: true,
+      'bp-messenger-typing': true
     })
 
-    return <div className={classNames}>
-      <Spinner name='ball-beat' fadeIn={'quarter'} className={style.spinner}/>
-    </div>
+    const tooltip = <Tooltip id="tooltip">
+      On click, payload event <strong>{payload}</strong> is emitted.
+    </Tooltip>
+
+    return <OverlayTrigger key={key} placement="top" overlay={tooltip}>
+      <Glyphicon glyph='pencil' />
+    </OverlayTrigger>
+  }
+
+  renderWaiting() {
+    const classNames = classnames({
+      [style.waiting]: true,
+      'bp-messenger-waiting': true
+    })
+
+    const tooltip = <Tooltip id="tooltip">
+      On click, payload event <strong>{payload}</strong> is emitted.
+    </Tooltip>
+
+    return <OverlayTrigger key={key} placement="top" overlay={tooltip}>
+      <Glyphicon glyph='time' />
+    </OverlayTrigger>
   }
 
   renderText() {
@@ -99,7 +121,6 @@ export default class UMMComponent extends Component {
       </div>
   }
 
-
   renderGenericButton({title, payload, url, type}, key) {
     const tooltip = <Tooltip id="tooltip">
       On click, payload <strong>{type}</strong> event <strong>{payload || url}</strong> is emitted.
@@ -129,6 +150,77 @@ export default class UMMComponent extends Component {
       </div>
   }
 
+  renderElement({title, subtitle, image_url, buttons, default_action}) {
+    const classNames = classnames({
+      [style.element]: true,
+      'bp-messenger-template-element': true
+    })
+
+    const imageClassNames = classnames({
+      [style.image]: true,
+      'bp-messenger-template-image': true
+    })
+
+    const action = default_action[0] || { type: 'undefined', payload: 'undefined'}
+
+    const tooltip = <Tooltip id="tooltip">
+      On click, payload <strong>{action.type}</strong> event
+      <strong> {action.payload || action.url}</strong> is emitted.
+    </Tooltip>
+
+    return <div className={classNames}>
+        <OverlayTrigger placement="top" overlay={tooltip}>
+          <div className={imageClassNames}>
+            <img src={image_url} alt='image of an element' />
+          </div>
+        </OverlayTrigger>
+        <h3>{title}</h3>
+        <p>{subtitle}</p>
+        {buttons.map(::this.renderGenericButton)}
+      </div>
+  }
+
+  renderLeftSliderButton() {
+    const classNames = classnames({
+      [style.leftSlider]: true,
+      'bp-messenger-left-slider': true,
+      [style.visible]: this.state.selected !== 0
+    })
+
+    return <div onClick={() => {this.handleSliderChanged(-1)}} className={classNames}>
+      <Glyphicon glyph='chevron-left' />
+    </div>
+  }
+
+  renderRightSliderButton() {
+    const classNames = classnames({
+      [style.rightSlider]: true,
+      'bp-messenger-right-slider': true,
+      [style.visible]: this.state.selected < this.state.size - 1
+    })
+
+    return <div onClick={() => {this.handleSliderChanged(1)}} className={classNames}>
+      <Glyphicon glyph='chevron-right' />
+    </div>
+  }
+
+  renderTemplateGeneric() {
+    if (_.isUndefined(this.state.selected)) {
+      return null
+    }
+
+    const classNames = classnames({
+      [style.generic]: true,
+      'bp-messenger-template-generic': true
+    })
+
+    return <div className={classNames}>
+        {this.renderElement(this.props.raw.payload.elements[this.state.selected])}
+        {this.renderLeftSliderButton()}
+        {this.renderRightSliderButton()}
+      </div>
+  }
+
   renderTemplate() {
     const classNames = classnames({
       [style.template]: true, 
@@ -145,13 +237,63 @@ export default class UMMComponent extends Component {
       case 'button':
         template = this.renderTemplateButton()
         break
+      case 'generic':
+        template = this.renderTemplateGeneric()
+        break
       default: 
-        template = this.renderNotSupported()
+        return this.renderNotSupported()
     }
 
     return <div>
         <div className={classNames}>
           {template}
+        </div>
+        {this.renderQuickReplies()}
+      </div>
+  }
+
+  renderAttachementImage() {
+    return <img src={this.props.raw.url} alt='url messenger image' />
+  }
+
+  renderAttachmentVideo() {
+    return <ReactPlayer width='400px' height='225px'
+      url={this.props.raw.url} playing controls />
+  }
+
+  renderAttachmentAudio() {
+    return <ReactAudioPlayer className={style.audio} src={this.props.raw.url} />
+  }
+
+  renderAttachment() {
+    const classNames = classnames({
+      [style.attachment]: true, 
+      'bp-messenger-attachment': true
+    })
+    
+    if (this.state.typing) {
+      return this.renderTyping()
+    }
+
+    let attachment = null
+
+    switch (this.props.raw.type) {
+      case 'image':
+        attachment = this.renderAttachementImage()
+        break
+      case 'audio':
+        attachment = this.renderAttachmentAudio()
+        break
+      case 'video':
+        attachment = this.renderAttachmentVideo()
+        break
+      default: 
+        return this.renderNotSupported()
+    }
+
+    return <div>
+        <div className={classNames}>
+          {attachment}
         </div>
         {this.renderQuickReplies()}
       </div>
@@ -167,6 +309,8 @@ export default class UMMComponent extends Component {
       return this.renderText()
     case 'template':
       return this.renderTemplate()
+    case 'attachment':
+      return this.renderAttachment()
     default:
       return this.renderNotSupported()
     }   
@@ -177,9 +321,12 @@ export default class UMMComponent extends Component {
       return null
     }
 
+    console.log(this.props)
     const classNames = classnames(style.component, 'bp-messenger-component')
     return <div className={classNames}>
         {this.renderComponent()}
+        {this.renderTyping()}
+        {this.renderWaiting()}
       </div>
   }
 }
