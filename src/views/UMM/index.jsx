@@ -227,7 +227,7 @@ export default class UMMComponent extends Component {
         template = this.renderTemplateGeneric()
         break
       default: 
-        return this.renderNotSupported()
+        return this.renderNotSupported(this.props.raw.payload.template_type)
     }
 
     return <div>
@@ -270,7 +270,7 @@ export default class UMMComponent extends Component {
         attachment = this.renderAttachmentVideo()
         break
       default: 
-        return this.renderNotSupported()
+        return this.renderNotSupported(this.props.raw.type)
     }
 
     return <div>
@@ -281,8 +281,8 @@ export default class UMMComponent extends Component {
       </div>
   }
 
-  renderNotSupported() {
-    return <div>Visual preview is not supported yet</div>
+  renderNotSupported(type) {
+    return <div>Visual preview for <strong>{type}</strong> is not supported yet..</div>
   }
 
   renderComponent() {
@@ -294,7 +294,7 @@ export default class UMMComponent extends Component {
     case 'attachment':
       return this.renderAttachment()
     default:
-      return this.renderNotSupported()
+      return this.renderNotSupported(this.props.type)
     }   
   }
 
