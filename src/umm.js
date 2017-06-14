@@ -160,9 +160,21 @@ function getTemplates() {
       type: 'Typing - Message with typing',
       template: 'block_name_bm:\n  - text: Text goes here..(1)\n    typing: 1000ms'
     },{
-      type: 'Quick replies',
+      type: 'Text - Quick replies',
       template: 'block_name_qr:\n  - text: Text goes here..\n    quick_replies:\n    - <POSTBACK_1> Button..(1)\n    - <POSTBACK_2> Button..(2)'
-    }
+    },{
+      type: 'Attachment - Image',
+      template: 'block_image:\n  - on: facebook\n    image: https://botpress.io/static/img/nobg_primary_black.png'
+    },{
+      type: 'Attachment - Video',
+      template: 'block_video:\n  - on: facebook\n    video: https://www.youtube.com/watch?v=QIokUU4HAKU'
+    },{
+      type: 'Template - Generic',
+      template: 'block_generic:\n  - on: facebook\n    template_type: generic\n    elements:\n    - title: Welcome to Botpress\n      image_url: https://botpress.io/static/img/grey_bg_primary.png\n      subtitle: This is a great building framework\n      default_action:\n      - type: web_url\n        url: https://botpress.io\n        messenger_extensions: false\n        webview_height_ratio: tall\n        fallback_url: https://botpress.io\n      buttons:\n      - <BTN_RANDOM> Random cat videos\n      - type: postback\n        title: This button gives the same thing\n        payload: BTN_RANDOM\n      - type: web_url\n        url: https://youtube.com/?q=cats\n        title: Cats on Youtube'
+    },{
+      type: 'Template - Carousel',
+      template: 'block_generic:\n  - on: facebook\n    template_type: generic\n    elements:\n    - title: Welcome to Botpress\n      image_url: https://botpress.io/static/img/grey_bg_primary.png\n      subtitle: This is a great building framework\n      default_action:\n      - type: web_url\n        url: https://botpress.io\n        messenger_extensions: false\n        webview_height_ratio: tall\n        fallback_url: https://botpress.io\n      buttons:\n      - <BTN_RANDOM> Random cat videos\n      - type: postback\n        title: This button gives the same thing\n        payload: BTN_RANDOM\n      - type: web_url\n        url: https://youtube.com/?q=cats\n        title: Cats on Youtube\n    - title: Bienvenido a Botpress\n      image_url: https://botpress.io/static/img/nobg_primary_black.png\n      subtitle: Este es un gran marco de construcción\n      default_action:\n      - type: web_url\n        url: https://botpress.io\n        messenger_extensions: false\n        webview_height_ratio: tall\n        fallback_url: https://botpress.io\n      buttons:\n      - <BTN_RANDOM> Videos de perros al azar\n      - type: postback\n        title: Este botón da lo mismo\n        payload: BTN_RANDOM\n      - type: web_url\n        url: https://youtube.com/?q=cats\n        title: Gatos en Youtube'
+    } 
   ]
 }
 

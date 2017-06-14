@@ -244,7 +244,7 @@ export default class UMMComponent extends Component {
 
   renderAttachmentVideo() {
     return <ReactPlayer width='400px' height='225px'
-      url={this.props.raw.url} playing controls />
+      url={this.props.raw.url} controls />
   }
 
   renderAttachmentAudio() {
