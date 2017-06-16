@@ -96,6 +96,7 @@ export default class MessengerModule extends React.Component {
       'appSecret',
       'applicationID',
       'automaticallyMarkAsRead',
+      'composerInputDisabled',
       'displayGetStarted',
       'greetingMessage',
       'hostname',
@@ -776,6 +777,7 @@ export default class MessengerModule extends React.Component {
             {this.renderCheckBox('Persistent menu', 'persistentMenu', this.state.homepage+'#persistent-menu')}
             {this.state.persistentMenu && this.renderPersistentMenuList()}
             {this.renderCheckBox('Automatically mark as read', 'automaticallyMarkAsRead', this.state.homepage+'#automatically-mark-as-read')}
+            {this.renderCheckBox('Composer input disabled', 'composerInputDisabled', this.state.homepage+'#composer-input-disabled')}
             {this.renderFacebookPageDetails()}
           </div>
         </div>

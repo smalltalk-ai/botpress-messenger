@@ -100,10 +100,11 @@ module.exports = {
     hostname: { type: 'string', required: false, default: '' },
     homepage: { type: 'string' },
     ngrok: { type: 'bool', required: false, default: false },
-    displayGetStarted: { type: 'bool', required: false, default: false },
+    displayGetStarted: { type: 'bool', required: false, default: true },
     greetingMessage: { type: 'string', required: false, default: 'Default greeting message' },
     persistentMenu: { type: 'bool', required: false, default: false },
     persistentMenuItems: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
+    composerInputDisabled: { type: 'bool', required: false, default: false },
     automaticallyMarkAsRead: { type: 'bool', required: false, default: true },
     targetAudience: { type: 'string', required: true, default: 'openToAll'},
     targetAudienceOpenToSome: { type: 'string', required: false },
@@ -111,7 +112,7 @@ module.exports = {
     trustedDomains: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
     autoRespondGetStarted: { type: 'bool', required: false, default: true }, // deprecated
     autoResponse: { type: 'string', required: false, default: 'Hello!' },     // deprecated
-    autoResponseOption: { type: 'string', required: false, default: 'noResponse' },
+    autoResponseOption: { type: 'string', required: false, default: 'autoResponseText' },
     autoResponseText: { type: 'string', required: false, default: 'Hello, human!' },
     autoResponsePostback: { type: 'string', required: false, default: 'YOUR_POSTBACK' },
     paymentTesters: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },

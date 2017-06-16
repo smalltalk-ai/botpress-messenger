@@ -310,13 +310,13 @@ class Messenger extends EventEmitter {
     }, 'DELETE')
   }
 
-  setPersistentMenu(buttons) {
+  setPersistentMenu(buttons, composerInputDisabled) {
     const formattedButtons = this._formatButtons(buttons)
     return this.sendRequest({
       persistent_menu: [
         { // TODO Allow setting multiple menues for different locales
           locale: 'default',
-          composer_input_disabled: false, // TODO Make this editable
+          composer_input_disabled: composerInputDisabled,
           call_to_actions: buttons
         }
       ]
@@ -419,7 +419,7 @@ class Messenger extends EventEmitter {
 
     const items = this._reformatPersistentMenuItems(this.config.persistentMenuItems)
     const updatePersistentMenu = () => this.config.persistentMenu
-      ? this.setPersistentMenu(items)
+      ? this.setPersistentMenu(items, this.config.composerInputDisabled)
       : this.deletePersistentMenu()
 
     const updateTargetAudience = () => this.setTargetAudience()
