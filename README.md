@@ -457,7 +457,7 @@ By using this function, you can send any type of attachment to your users ([face
 ```js
 const userId = 'USER_ID'
 const type = 'image'
-const url = 'https://github.com/botpress/botpress/blob/master/images/botpress-dark.png?raw=true'
+const url = 'https://botpress.io/static/img/nobg_primary_black.png'
 
 bp.messenger.sendAttachment(userId, type, url)
 ```
