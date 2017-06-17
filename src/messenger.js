@@ -13,11 +13,15 @@ const fetch = require('node-fetch')
 const _ = require('lodash')
 const bodyParser = require('body-parser')
 
+import DB from './db'
+
 fetch.promise = Promise
 
 const normalizeString = function(str) {
   return str.replace(/[^a-zA-Z0-9]+/g, '').toUpperCase()
 }
+
+let db = null
 
 class Messenger extends EventEmitter {
   constructor(bp, config) {
@@ -27,6 +31,12 @@ class Messenger extends EventEmitter {
     }
 
     this.setConfig(config)
+   
+    bp.db.get()
+    .then(k => {
+      db = DB(k)
+      db.initialize()
+    })
 
     this.app = bp.getRouter('botpress-messenger', {
       'bodyParser.json': false,
@@ -94,26 +104,43 @@ class Messenger extends EventEmitter {
     return this.sendMessage(recipientId, message, options)
   }
 
-  sendAttachment(recipientId, type, url, quickReplies, options) {
+  async sendAttachment(recipientId, type, url, quickReplies, options) {
     const message = {
       attachment: {
-        type,
-        payload: { url }
+        type: type,
+        payload: {}
       }
     }
-    if( options.isReusable && _.isBoolean(options.isReusable) ){
-      message.attachment.payload.is_reusable = options.isReusable;
+
+    if (options.isReusable && _.isBoolean(options.isReusable)) {
+      message.attachment.payload.is_reusable = options.isReusable
     }
-    if( options.attachmentId ){
+
+    if (options.attachmentId){
       message.attachment.payload = {
-        attachment_id: options.attachmentId
+        attachment_id: options.attachmentId,
       }
+    } else if (options.isReusable && await db.hasAttachment(url)) {
+      const attachmentId = await db.getAttachment(url)
+
+      message.attachment.payload = {
+        attachment_id: attachmentId
+      }
+    } else {
+      message.attachment.payload.url = url
     }
+
     const formattedQuickReplies = this._formatQuickReplies(quickReplies)
     if (formattedQuickReplies && formattedQuickReplies.length > 0) {
       message.quick_replies = formattedQuickReplies
     }
+
     return this.sendMessage(recipientId, message, options)
+    .then(res => {
+      if (res && res.attachment_id) {
+        db.addAttachment(url, res.attachment_id)
+      }
+    })
   }
 
   sendAction(recipientId, action) {
