@@ -701,14 +701,7 @@ class Messenger extends EventEmitter {
         object: 'page',
         callback_url: 'https://' + this.config.hostname + '/api/botpress-messenger/webhook',
         verify_token: this.config.verifyToken,
-        fields: [
-          'message_deliveries',
-          'message_reads',
-          'messages',
-          'messaging_optins',
-          'messaging_postbacks',
-          'messaging_referrals'
-        ]
+        fields: this.config.webhookSubscriptionFields
       })
     }))
     .then(this._handleFacebookResponse)

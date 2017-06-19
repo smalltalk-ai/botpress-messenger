@@ -118,7 +118,19 @@ module.exports = {
     paymentTesters: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
     chatExtensionHomeUrl: { type: 'string', required: false, default: '' },
     chatExtensionInTest: { type: 'bool', required: false, default: true },
-    chatExtensionShowShareButton: { type: 'bool', required: false, default: false }
+    chatExtensionShowShareButton: { type: 'bool', required: false, default: false },
+    webhookSubscriptionFields: { 
+      type: 'any', 
+      required: true, 
+      default: [
+        'message_deliveries',
+        'message_reads',
+        'messages',
+        'messaging_optins',
+        'messaging_postbacks',
+        'messaging_referrals'
+      ]
+    }
   },
 
   init: function(bp) {
