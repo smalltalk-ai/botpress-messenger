@@ -31,7 +31,8 @@ class Messenger extends EventEmitter {
     }
 
     this.setConfig(config)
-   
+    this.bp = bp
+
     bp.db.get()
     .then(k => {
       db = DB(k)
@@ -56,6 +57,30 @@ class Messenger extends EventEmitter {
 
   getConfig() {
     return this.config
+  }
+
+  validateConfig() {
+    return new Promise((resolve, reject) => {
+      if (!this.config.enabled) {
+        this.bp.logger.warn('[botpress-messenger] need to enabled connection, please look to your config')
+        this.bp.notifications.send({
+          level: 'warn',
+          message: 'Need to enabled connection, please look to your configuration.'
+        })
+
+        throw new Error('Connection is disabled, look to your config and set enabled to true if you want to connect your bot')
+      }
+
+      const required = ['applicationID', 'accessToken', 'appSecret', 'hostname', 'verifyToken']
+      
+      _.forEach(this.config, (value, key) => {
+        if (_.includes(required, key) && (_.isNil(value) || _.isEmpty(value))) {
+          throw new Error('Configuration are incomplete, ' + key + ' needs to be defined.')
+        }
+      })
+
+      return resolve()
+    })
   }
 
   connect() {

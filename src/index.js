@@ -13,7 +13,7 @@ import Messenger from './messenger'
 import actions from './actions'
 import outgoing from './outgoing'
 import incoming from './incoming'
-import ngrok from './ngrok' // TODO Switch to localtunnel
+import ngrok from './ngrok' // TODO Switch to localtunnel or pagekite (deprecated)
 import Users from './users'
 import UMM from './umm'
 
@@ -59,33 +59,64 @@ const initializeMessenger = (bp, configurator) => {
 
     users = Users(bp, messenger)
 
-    // regenerate a new ngrok url and update it to facebook
-    if (!config.ngrok || !config.connected) {
-      return Promise.resolve(true)
-    }
-
-    bp.logger.debug('[messenger] updating ngrok to facebook')
-
-    return ngrok.getUrl(bp.botfile.port)
-    .then(url => {
-      url = url.replace(/https:\/\//i, '')
-      messenger.setConfig({ hostname: url })
-    })
-    .then(() => configurator.saveAll(messenger.getConfig()))
-    .then(() => messenger.updateSettings())
+    return messenger.validateConfig()
     .then(() => messenger.connect())
     .then(() => bp.notifications.send({
-      level: 'info',
-      message: 'Upgraded messenger app webhook with new ngrok url'
+      level: 'success',
+      message: 'connection and messenger app webhook updated'
     }))
     .catch(err => {
-      bp.logger.error('[messenger] error updating ngrok', err)
+      bp.logger.warn('[botpress-messenger] some critical config are missing\n', err)
       bp.notifications.send({
-        level: 'error',
-        message: 'Error updating app webhook with new ngrok url. Please see logs for details.'
+        level: 'warn',
+        message: 'Error updating app webhook. Please see logs for details.'
       })
     })
+
+    // Regenerate a new ngrok url and update it to facebook (deprecated)
+
+    // if (!config.ngrok || !config.connected) {
+    //   return Promise.resolve(true)
+    // }
+
+    // bp.logger.debug('[messenger] updating ngrok to facebook')
+
+    // return ngrok.getUrl(bp.botfile.port)
+    // .then(url => {
+    //   url = url.replace(/https:\/\//i, '')
+    //   messenger.setConfig({ hostname: url })
+    // })
+    // .then(() => configurator.saveAll(messenger.getConfig()))
+    // .then(() => messenger.updateSettings())
+    // .then(() => messenger.connect())
+    // .then(() => bp.notifications.send({
+    //   level: 'info',
+    //   message: 'Upgraded messenger app webhook with new ngrok url'
+    // }))
+    // .catch(err => {
+    //   bp.logger.error('[messenger] error updating ngrok', err)
+    //   bp.notifications.send({
+    //     level: 'error',
+    //     message: 'Error updating app webhook with new ngrok url. Please see logs for details.'
+    //   })
+    // })
   })
+}
+
+const createConfigFile = (bp) => {
+  const name = 'botpress-messenger.config.yml'
+  const file = path.join(bp.projectLocation, name)
+
+  if (!fs.existsSync(file)) {
+    const templatePath = path.join(__dirname, '/..', 'botpress-messenger.config.yml')
+    const template = fs.readFileSync(templatePath)
+    fs.writeFileSync(file, template)
+
+    bp.notifications.send({
+      level: 'info',
+      message: name + ' has been created, fill it'
+    })
+  }
 }
 
 module.exports = {
@@ -95,11 +126,12 @@ module.exports = {
     accessToken: { type: 'string', required: true, default: '', env: 'MESSENGER_ACCESS_TOKEN' },
     appSecret: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_SECRET' },
     verifyToken: { type: 'string', required: false, default: uuid.v4() },
-    validated: { type: 'bool', required: false, default: false },
-    connected: { type: 'bool', required: false, default: false },
+    enabled: { type: 'bool', required: true, default: true },
+    validated: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
+    connected: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
     hostname: { type: 'string', required: false, default: '' },
     homepage: { type: 'string' },
-    ngrok: { type: 'bool', required: false, default: false },
+    ngrok: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
     displayGetStarted: { type: 'bool', required: false, default: true },
     greetingMessage: { type: 'string', required: false, default: 'Default greeting message' },
     persistentMenu: { type: 'bool', required: false, default: false },
@@ -160,7 +192,7 @@ module.exports = {
       bp.messenger[sendName] = Promise.method(applyFn((msg, promise) => bp.middlewares.sendOutgoing(msg) && promise))
       bp.messenger[name] = applyFn(msg => msg)
     })
-
+    createConfigFile(bp)
     UMM(bp) // Initializes Messenger in the UMM
   },
 
