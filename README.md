@@ -187,6 +187,7 @@ To see in details how to configure completly this module, videos are available o
 * [Greeting message](#greeting-message)
 * [Persistent menu](#persistent-menu)
 * [Automatically mark as read](#automatically-mark-as-read)
+* [Composer input disabled](#composer-input-disabled)
 * [Trusted domains](#trusted-domains)
 * [Automatic profile lookup](#automatic-profile-lookup)
 * [Save users in DB](#save-users-in-database)
@@ -456,7 +457,7 @@ By using this function, you can send any type of attachment to your users ([face
 ```js
 const userId = 'USER_ID'
 const type = 'image'
-const url = 'https://github.com/botpress/botpress/blob/master/images/botpress-dark.png?raw=true'
+const url = 'https://botpress.io/static/img/nobg_primary_black.png'
 
 bp.messenger.sendAttachment(userId, type, url)
 ```
@@ -558,6 +559,10 @@ Users can directly modify persistent menu in module user interface. By using UI,
 Directly in UI, users can setup if they want to automatically mark all messages as read ([facebook doc](https://developers.facebook.com/docs/messenger-platform/webhook-reference/message-read)).
 
 <img alt='Mark as read' src='/assets/automatically-mark-as-read.png' width='600px' />
+
+#### Composer input disabled
+
+Directly in UI, users can setup if they want to deactivate or not the user input ([facebook doc](https://developers.facebook.com/docs/messenger-platform/thread-settings/persistent-menu)).
 
 #### Trusted domains
 

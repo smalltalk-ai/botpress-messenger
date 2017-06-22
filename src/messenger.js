@@ -13,11 +13,15 @@ const fetch = require('node-fetch')
 const _ = require('lodash')
 const bodyParser = require('body-parser')
 
+import DB from './db'
+
 fetch.promise = Promise
 
 const normalizeString = function(str) {
   return str.replace(/[^a-zA-Z0-9]+/g, '').toUpperCase()
 }
+
+let db = null
 
 class Messenger extends EventEmitter {
   constructor(bp, config) {
@@ -27,6 +31,13 @@ class Messenger extends EventEmitter {
     }
 
     this.setConfig(config)
+    this.bp = bp
+
+    bp.db.get()
+    .then(k => {
+      db = DB(k)
+      db.initialize()
+    })
 
     this.app = bp.getRouter('botpress-messenger', {
       'bodyParser.json': false,
@@ -46,6 +57,30 @@ class Messenger extends EventEmitter {
 
   getConfig() {
     return this.config
+  }
+
+  validateConfig() {
+    return new Promise((resolve, reject) => {
+      if (!this.config.enabled) {
+        this.bp.logger.warn('[botpress-messenger] need to enabled connection, please look to your config')
+        this.bp.notifications.send({
+          level: 'warn',
+          message: 'Need to enabled connection, please look to your configuration.'
+        })
+
+        throw new Error('Connection is disabled, look to your config and set enabled to true if you want to connect your bot')
+      }
+
+      const required = ['applicationID', 'accessToken', 'appSecret', 'hostname', 'verifyToken']
+      
+      _.forEach(this.config, (value, key) => {
+        if (_.includes(required, key) && (_.isNil(value) || _.isEmpty(value))) {
+          throw new Error('Configuration are incomplete, ' + key + ' needs to be defined.')
+        }
+      })
+
+      return resolve()
+    })
   }
 
   connect() {
@@ -94,26 +129,43 @@ class Messenger extends EventEmitter {
     return this.sendMessage(recipientId, message, options)
   }
 
-  sendAttachment(recipientId, type, url, quickReplies, options) {
+  async sendAttachment(recipientId, type, url, quickReplies, options) {
     const message = {
       attachment: {
-        type,
-        payload: { url }
+        type: type,
+        payload: {}
       }
     }
-    if( options.isReusable && _.isBoolean(options.isReusable) ){
-      message.attachment.payload.is_reusable = options.isReusable;
+
+    if (options.isReusable && _.isBoolean(options.isReusable)) {
+      message.attachment.payload.is_reusable = options.isReusable
     }
-    if( options.attachmentId ){
+
+    if (options.attachmentId){
       message.attachment.payload = {
-        attachment_id: options.attachmentId
+        attachment_id: options.attachmentId,
       }
+    } else if (options.isReusable && await db.hasAttachment(url)) {
+      const attachmentId = await db.getAttachment(url)
+
+      message.attachment.payload = {
+        attachment_id: attachmentId
+      }
+    } else {
+      message.attachment.payload.url = url
     }
+
     const formattedQuickReplies = this._formatQuickReplies(quickReplies)
     if (formattedQuickReplies && formattedQuickReplies.length > 0) {
       message.quick_replies = formattedQuickReplies
     }
+
     return this.sendMessage(recipientId, message, options)
+    .then(res => {
+      if (res && res.attachment_id) {
+        db.addAttachment(url, res.attachment_id)
+      }
+    })
   }
 
   sendAction(recipientId, action) {
@@ -310,20 +362,23 @@ class Messenger extends EventEmitter {
     }, 'DELETE')
   }
 
-  setPersistentMenu(buttons) {
+  setPersistentMenu(buttons, composerInputDisabled) {
     const formattedButtons = this._formatButtons(buttons)
-    return this.sendThreadRequest({
-      setting_type: 'call_to_actions',
-      thread_state: 'existing_thread',
-      call_to_actions: formattedButtons
-    })
+    return this.sendRequest({
+      persistent_menu: [
+        { // TODO Allow setting multiple menues for different locales
+          locale: 'default',
+          composer_input_disabled: composerInputDisabled,
+          call_to_actions: buttons
+        }
+      ]
+    }, 'messenger_profile')
   }
 
   deletePersistentMenu() {
-    return this.sendThreadRequest({
-      setting_type: 'call_to_actions',
-      thread_state: 'existing_thread'
-    }, 'DELETE')
+    return this.sendRequest({
+      "fields":[ "persistent_menu" ]
+    }, 'messenger_profile', 'DELETE')
   }
 
   /**
@@ -416,7 +471,7 @@ class Messenger extends EventEmitter {
 
     const items = this._reformatPersistentMenuItems(this.config.persistentMenuItems)
     const updatePersistentMenu = () => this.config.persistentMenu
-      ? this.setPersistentMenu(items)
+      ? this.setPersistentMenu(items, this.config.composerInputDisabled)
       : this.deletePersistentMenu()
 
     const updateTargetAudience = () => this.setTargetAudience()
@@ -671,14 +726,7 @@ class Messenger extends EventEmitter {
         object: 'page',
         callback_url: 'https://' + this.config.hostname + '/api/botpress-messenger/webhook',
         verify_token: this.config.verifyToken,
-        fields: [
-          'message_deliveries',
-          'message_reads',
-          'messages',
-          'messaging_optins',
-          'messaging_postbacks',
-          'messaging_referrals'
-        ]
+        fields: this.config.webhookSubscriptionFields
       })
     }))
     .then(this._handleFacebookResponse)
