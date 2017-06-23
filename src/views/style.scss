@@ -6,6 +6,12 @@
   color: gray;
 }
 
+:global(.has-success .input-group-addon) {
+  color: #434343;
+  background-color: #F6F9FC;
+  border-color: #E6EBEE;
+}
+
 .section {
   background-color: #fff;
   border-radius: 5px;

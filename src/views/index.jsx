@@ -19,6 +19,9 @@ import {
 } from 'react-bootstrap'
 import _ from 'lodash'
 import Promise from 'bluebird'
+import classnames from 'classnames'
+
+import UMMComponent from './UMM'
 
 import style from './style.scss'
 
@@ -567,7 +570,7 @@ export default class MessengerModule extends React.Component {
               type="text"
               onChange={this.handlePaymentTesterChange} />
             {matchingUsers}
-            <Button className={style.messengerButton} onClick={() => this.handleAddToPaymentTesterList()}>
+            <Button className='bp-button' onClick={() => this.handleAddToPaymentTesterList()}>
               Add payment tester
             </Button>
           </Col>
@@ -709,18 +712,15 @@ export default class MessengerModule extends React.Component {
   }
 
   renderConfigView() {
-    return (
-        <FormGroup>
-          <Col componentClass={ControlLabel} sm={3}>
-            <Button
-              href="/api/botpress-messenger/config"
-              download="botpress-messenger.json" >
+    return <FormGroup>
+        <Col sm={7} smOffset={3}>
+          <Button className='bp-button'
+            href="/api/botpress-messenger/config"
+            download="botpress-messenger.json" >
               Download Config
-            </Button>
-          </Col>
-        </FormGroup>
-
-    )
+          </Button>
+        </Col>
+      </FormGroup>
   }
 
   // render details about the Facebook page that the
@@ -744,7 +744,7 @@ export default class MessengerModule extends React.Component {
       <FormGroup>
         {this.renderLabel('Facebook Page Details','')}
         <Col sm={7}>
-          <Button className={style.messengerButton} onClick={this.getPageDetails}>Get Facebook Page Details</Button>
+          <Button className='bp-button' onClick={this.getPageDetails}>Get Facebook Page Details</Button>
         </Col>
 
         {content}
@@ -834,5 +834,15 @@ export default class MessengerModule extends React.Component {
 
   render() {
     return this.state.loading ? null : this.renderAllContent()
+  }
+}
+
+export class UMMOutgoing extends React.Component {
+  constructor(props) {
+    super()
+  }
+
+  render() {
+    return <UMMComponent {...this.props} />
   }
 }
