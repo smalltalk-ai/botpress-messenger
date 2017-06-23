@@ -151,7 +151,7 @@ export default class UMMComponent extends Component {
       'bp-messenger-template-image': true
     })
 
-    const action = default_action[0] || { type: 'undefined', payload: 'undefined'}
+    const action = (default_action && default_action[0]) || { type: 'undefined', payload: 'undefined'}
 
     const tooltip = <Tooltip id="tooltip">
       On click, payload <strong>{action.type}</strong> event
