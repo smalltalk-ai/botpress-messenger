@@ -195,7 +195,7 @@ export default class UMMComponent extends Component {
   }
 
   renderTemplateGeneric() {
-    if (_.isUndefined(this.state.selected)) {
+    if (_.isUndefined(this.state.selected) || !this.props.raw.payload.elements[this.state.selected]) {
       return null
     }
 
