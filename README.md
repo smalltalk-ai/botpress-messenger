@@ -176,7 +176,7 @@ Acces token is available in Messenger section of developers. You need to copy it
 
 ##### 5. Validate and Connect!
 
-To see in details how to configure completly this module, videos are available on our [Youtube Channel](https://www.youtube.com/c/botpress)
+> **Tip:** To see in details how to configure completly this module, videos are available on our [Youtube Channel](https://www.youtube.com/c/botpress)
 
 ## Features
 
