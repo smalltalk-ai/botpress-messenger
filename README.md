@@ -133,6 +133,19 @@ To setup connexion of your chatbot to Messenger, you need to fill the connexion 
 
 <img alt='Connexion settings' src='assets/connexion-settings.png' width='700px'/>
 
+We **highly recommand** to set your configuration in the `botpress-messenger.config.yml` file that has been automatically created for you, so you won't have any problem to migrate and commit your configuration settings. 
+
+```yaml
+  applicationID: ''
+  accessToken: ''
+  appSecret: ''
+  verifyToken: ''
+  hostname: ''
+  enabled: false
+```
+
+> **Tip:** You can also set all the other configs using this configuration file, simply add them and it will override configuration set in the database.
+
 ##### 1. Create a [**Facebook page**](https://www.facebook.com/pages/create) and a [**Messenger application**](https://developers.facebook.com).
 
 <img alt='Create app' src='/assets/create-app-facebook.png' width='500px' />
@@ -149,13 +162,14 @@ Acces token is available in Messenger section of developers. You need to copy it
 
 ##### 4. Setup Hostname
 
-  4.1. You need to manually enter your hostname, here are some you secure tunnels to localhost tools, we suugest you to use:
+  4.1. You need to manually set your **hostname**, here are some you secure tunnels to localhost tools, we suggest you to use for local development:
 
   - **[pagekite](https://pagekite.net/)** *(highly recommanded, to get a fix url)*
-  - **[ngrok](https://ngrok.com)**
-  - **[localtunnel](https://github.com/localtunnel/localtunnel)**
+  - **[localtunnel](https://github.com/localtunnel/localtunnel)** *(recommanded)*
+  - **[ngrok](https://ngrok.com)** *(recommanded)*
+  
 
-  4.2. You have to setup webhook on Facebook developers page. You will need to set them [facebook developers](https://developers.facebook.com) interface of your bot (*Facebook developer page > Webhooks > Edit Subscription*) and set callback URL correctly `${YOUR_HOSTMANE}/api/botpress-messenger/webhook`.
+  4.2. You have to setup webhook on Facebook developers page. You will need to set them on [facebook developers](https://developers.facebook.com) administration panel of your bot (*Facebook developer page > Webhooks > Edit Subscription*) and set **callback URL** correctly `${YOUR_HOSTMANE}/api/botpress-messenger/webhook`. You will also need to set the **verification token** that match your settings. 
 
 <img alt='Weebhook' src='/assets/webhook.png' width='500px;' />
 
