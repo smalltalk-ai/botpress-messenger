@@ -122,6 +122,10 @@ export default class UMMComponent extends Component {
   }
 
   renderTemplateButton() {
+    if (!this.props.raw.payload.buttons) {
+      return null
+    }
+    
     const classNames = classnames({
       [style.button]: true,
       'bp-messenger-template-button': true
@@ -151,7 +155,7 @@ export default class UMMComponent extends Component {
       'bp-messenger-template-image': true
     })
 
-    const action = default_action[0] || { type: 'undefined', payload: 'undefined'}
+    const action = (default_action && default_action[0]) || { type: 'undefined', payload: 'undefined'}
 
     const tooltip = <Tooltip id="tooltip">
       On click, payload <strong>{action.type}</strong> event
@@ -166,7 +170,7 @@ export default class UMMComponent extends Component {
         </OverlayTrigger>
         <h3>{title}</h3>
         <p>{subtitle}</p>
-        {buttons.map(::this.renderGenericButton)}
+        {buttons && buttons.map(::this.renderGenericButton)}
       </div>
   }
 

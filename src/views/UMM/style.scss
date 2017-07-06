@@ -24,6 +24,7 @@ $color-blue-hover: #036ED3;
 
   .text {
     @include messenger-bubble();
+    white-space: pre-line;
   }
 
   .typing {
