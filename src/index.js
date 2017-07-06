@@ -17,6 +17,8 @@ import ngrok from './ngrok' // TODO Switch to localtunnel or pagekite (deprecate
 import Users from './users'
 import UMM from './umm'
 
+import configTemplate from './botpress-messenger.config.yml'
+
 let messenger = null
 const outgoingPending = outgoing.pending
 
@@ -108,9 +110,7 @@ const createConfigFile = (bp) => {
   const file = path.join(bp.projectLocation, name)
 
   if (!fs.existsSync(file)) {
-    const templatePath = path.join(__dirname, '/..', 'botpress-messenger.config.yml')
-    const template = fs.readFileSync(templatePath)
-    fs.writeFileSync(file, template)
+    fs.writeFileSync(file, configTemplate)
 
     bp.notifications.send({
       level: 'info',
@@ -192,6 +192,7 @@ module.exports = {
       bp.messenger[sendName] = Promise.method(applyFn((msg, promise) => bp.middlewares.sendOutgoing(msg) && promise))
       bp.messenger[name] = applyFn(msg => msg)
     })
+
     createConfigFile(bp)
     UMM(bp) // Initializes Messenger in the UMM
   },
