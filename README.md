@@ -1,6 +1,6 @@
 # botpress-messenger
 
-<img src="https://cdn.rawgit.com/botpress/botpress/7e007114/assets/supports_UMM.png" height="60px" />
+[<img src="https://cdn.rawgit.com/botpress/botpress/7e007114/assets/supports_UMM.png" height="60px" />](https://botpress.io/docs/foundamentals/umm.html)
 
 Official Facebook Messenger connector module for [Botpress](http://github.com/botpress/botpress).
 
