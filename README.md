@@ -131,8 +131,6 @@ It's also possible to install it through the Botpress UI in the modules section.
 
 To setup connexion of your chatbot to Messenger, you need to fill the connexion settings directly in the module interface. In fact, you only need to follow these 5 steps and your bot will be active.
 
-All the information filled in the UI are store into the database.If you want, you can change your information directly into your database. You can have more information [here](https://github.com/botpress/botpress/blob/master/docs/modules/how-to-configure-my-module.md#where-is-the-configuration-saved--is-the-configuration-persisted-in-database)
-
 <img alt='Connexion settings' src='assets/connexion-settings.png' width='700px'/>
 
 ##### 1. Create a [**Facebook page**](https://www.facebook.com/pages/create) and a [**Messenger application**](https://developers.facebook.com).
@@ -151,14 +149,20 @@ Acces token is available in Messenger section of developers. You need to copy it
 
 ##### 4. Setup Hostname
 
-  4.1. You need to manually enter your hostname or you cans use **[ngrok](#ngrok)** to locally deploy your chatbot ([learn more about ngrok]((https://ngrok.com))
+  4.1. You need to manually enter your hostname, here are some you secure tunnels to localhost tools, we suugest you to use:
 
-  4.2. You don't have to setup webhook on Facebook developers page, this module automatically do it for you via Facebook API.
+  - **[pagekite](https://pagekite.net/)** *(highly recommanded, to get a fix url)*
+  - **[ngrok](https://ngrok.com)**
+  - **[localtunnel](https://github.com/localtunnel/localtunnel)**
+
+  4.2. You have to setup webhook on Facebook developers page. You will need to set them [facebook developers](https://developers.facebook.com) interface of your bot (*Facebook developer page > Webhooks > Edit Subscription*) and set callback URL correctly `${YOUR_HOSTMANE}/api/botpress-messenger/webhook`.
+
+<img alt='Weebhook' src='/assets/webhook.png' width='500px;' />
+
 
 ##### 5. Validate and Connect!
 
-To see in details how to configure completly this module, videos are available on our Youtube Channel \(soon\).
-
+To see in details how to configure completly this module, videos are available on our [Youtube Channel](https://www.youtube.com/c/botpress)
 
 ## Features
 
