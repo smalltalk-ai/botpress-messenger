@@ -31,32 +31,13 @@ export default class MessengerModule extends React.Component {
     super(props)
 
     this.state = {
-      loading:true,
+      loading: true,
       message: null,
       error: null,
       users: [],
       matchingUsers: [],
       initialStateHash: null
     }
-
-    this.handleChange = this.handleChange.bind(this)
-    this.handleChangeCheckBox = this.handleChangeCheckBox.bind(this)
-    this.handleSaveChanges = this.handleSaveChanges.bind(this)
-    this.handleRemoveFromList = this.handleRemoveFromList.bind(this)
-    this.handleAddToTrustedDomainsList = this.handleAddToTrustedDomainsList.bind(this)
-    this.handleAddToPersistentMenuList = this.handleAddToPersistentMenuList.bind(this)
-    this.handleValidation = this.handleValidation.bind(this)
-    this.handleConnection = this.handleConnection.bind(this)
-    this.handlePaymentTesterChange = this.handlePaymentTesterChange.bind(this)
-    this.renderPersistentMenuItem = this.renderPersistentMenuItem.bind(this)
-    this.renderDomainElement = this.renderDomainElement.bind(this)
-    this.renderAutoComplete = this.renderAutoComplete.bind(this)
-    this.renderPaymentTesterElement = this.renderPaymentTesterElement.bind(this)
-    // this.handleChangeNGrokCheckBox = this.handleChangeNGrokCheckBox.bind(this) --> DEPRECATED (@2.1.4)
-    this.handleDismissError = this.handleDismissError.bind(this)
-    this.renderGetStartedMessage = this.renderGetStartedMessage.bind(this)
-    this.getPageDetails = this.getPageDetails.bind(this)
-
   }
 
   getAxios() {
@@ -64,33 +45,49 @@ export default class MessengerModule extends React.Component {
   }
 
   componentDidMount() {
-    this.getAxios().get('/api/botpress-messenger/config')
+    this.getConfigurations()
+    .then(::this.getHomePage)
+    .then(::this.getListOfUsers)
+    .then(::this.getConnectionStatus)
+    .then(() => this.setState({ loading: false }))
+  }
+
+  getConfigurations() {
+    return this.getAxios().get('/api/botpress-messenger/config')
     .then((res) => {
-      this.setState({
-        loading: false,
-        ...res.data
-      })
+      this.setState({ ...res.data })
 
       setImmediate(() => {
         this.setState({ initialStateHash: this.getStateHash() })
       })
     })
+  }
 
-    this.getAxios().get('/api/botpress-messenger/homepage')
+  getConnectionStatus() {
+    return this.getAxios().get('/api/botpress-messenger/connected')
+    .then((res) => {
+      this.setState({
+        connected: res.data
+      })
+    })
+  }
+
+  getListOfUsers() {
+    return this.getAxios().get("/api/botpress-messenger/users")
+    .then((res) => {
+      this.setState({
+        users: res.data
+      })
+    })
+  }
+
+  getHomePage() {
+    return this.getAxios().get('/api/botpress-messenger/homepage')
     .then((res) => {
       this.setState({
         homepage: res.data.homepage
       })
     })
-
-    // get a list of currently available users
-    this.getAxios().get("/api/botpress-messenger/users")
-      .then((res) => {
-        this.setState({
-          users: res.data
-        })
-      })
-
   }
 
   getStateHash() {
@@ -124,7 +121,7 @@ export default class MessengerModule extends React.Component {
   handleSaveChanges() {
     this.setState({ loading:true })
 
-    return this.getAxios().post('/api/botpress-messenger/config', _.omit(this.state, 'loading', 'initialStateHash', 'message', 'error', 'users', 'matchingUsers', 'pageDetails'))
+    return this.getAxios().post('/api/botpress-messenger/config', _.omit(this.state, 'loading', 'initialStateHash', 'message', 'error', 'users', 'matchingUsers', 'pageDetails', 'connected'))
     .then(() => {
       this.setState({
         message: {
@@ -150,44 +147,26 @@ export default class MessengerModule extends React.Component {
   handleChange(event) {
     var { name, value } = event.target
 
-    var connectionInputList = ['applicationID', 'accessToken', 'hostname', 'ngrok', 'appSecret']
-    if (_.includes(connectionInputList, name)) {
-      this.setState({ validated: false })
-    }
-
     this.setState({
       [name]: value
-    })
-  }
-
-  handleValidation() {
-    this.getAxios().post('/api/botpress-messenger/validation', {
-      applicationID: this.state.applicationID,
-      accessToken: this.state.accessToken
-    })
-    .then(() => {
-      this.setState({validated: true})
-    })
-    .catch(err => {
-      this.setState({ error: err.response.data.message, loading: false })
     })
   }
 
   // get the page details for the page associated with this access token
   getPageDetails() {
     return this.getAxios().get("/api/botpress-messenger/facebook_page")
-      .then((json) => {
-        this.setState({
-          pageDetails: json.data
-        })
+    .then((json) => {
+      this.setState({
+        pageDetails: json.data
       })
+    })
   }
 
   handleConnection(event) {
     let preConnection = Promise.resolve()
 
     if (this.state.initialStateHash && this.state.initialStateHash !== this.getStateHash()) {
-      preConnection = this.handleSaveChanges()
+      preConnection = ::this.handleSaveChanges()
     }
 
     preConnection.then(() => {
@@ -197,13 +176,19 @@ export default class MessengerModule extends React.Component {
         appSecret: this.state.appSecret,
         hostname: this.state.hostname
       })
-      .then(() => {
-        this.setState({ connected: !this.state.connected })
-        window.setTimeout(::this.handleSaveChanges, 100)
-      })
+      .then(::this.getConnectionStatus)
       .catch(err => {
         this.setState({ error: err.response.data.message, loading: false })
       })
+    })
+  }
+
+
+  handleDisconnection(event) {
+    return this.getAxios().post('/api/botpress-messenger/disconnection')
+    .then(::this.getConnectionStatus)
+    .catch(err => {
+      this.setState({ error: err.response.data.message, loading: false })
     })
   }
 
@@ -329,7 +314,7 @@ export default class MessengerModule extends React.Component {
         {this.renderLabel(label, link)}
         <Col sm={7}>
           <FormControl name={name} {...props} type="text"
-            value={this.state[name]} onChange={this.handleChange} />
+            value={this.state[name]} onChange={::this.handleChange} />
         </Col>
       </FormGroup>
     )
@@ -340,24 +325,24 @@ export default class MessengerModule extends React.Component {
       <FormGroup>
         {this.renderLabel('Get Started Auto Response?', this.state.homepage+'#display-get-started')}
         <Col sm={7}>
-          <Radio name="autoResponseOption" value="noResponse" checked={this.state.autoResponseOption === "noResponse"} onChange={this.handleChange}>No auto response</Radio>
-          <Radio name="autoResponseOption" value="autoResponseText" checked={this.state.autoResponseOption === "autoResponseText"} onChange={this.handleChange}>Text response</Radio>
+          <Radio name="autoResponseOption" value="noResponse" checked={this.state.autoResponseOption === "noResponse"} onChange={::this.handleChange}>No auto response</Radio>
+          <Radio name="autoResponseOption" value="autoResponseText" checked={this.state.autoResponseOption === "autoResponseText"} onChange={::this.handleChange}>Text response</Radio>
           { this.state.autoResponseOption == "autoResponseText" &&
             <FormGroup className={style.insideRadioFormGroup}>
               <Col sm={12}>
                 <FormControl name="autoResponseText"
                   componentClass="textarea" rows="3"
                   value={this.state['autoResponseText']}
-                  onChange={this.handleChange} />
+                  onChange={::this.handleChange} />
                 <HelpBlock>Define an auto response text to <em>Get Started</em> postback</HelpBlock>
               </Col>
             </FormGroup>
           }
-          <Radio name="autoResponseOption" value="autoResponsePostback" checked={this.state.autoResponseOption === "autoResponsePostback"} onChange={this.handleChange}>Trigger a postback</Radio>
+          <Radio name="autoResponseOption" value="autoResponsePostback" checked={this.state.autoResponseOption === "autoResponsePostback"} onChange={::this.handleChange}>Trigger a postback</Radio>
           { this.state.autoResponseOption == "autoResponsePostback" &&
             <FormGroup className={style.insideRadioFormGroup}>
               <Col sm={12}>
-                <FormControl name="autoResponsePostback" type="text" value={this.state['autoResponsePostback']} onChange={this.handleChange} />
+                <FormControl name="autoResponsePostback" type="text" value={this.state['autoResponsePostback']} onChange={::this.handleChange} />
                 <HelpBlock><strong>{this.state.autoResponsePostback}</strong> postback will be triggered automatically on <em>Get Started</em> event.</HelpBlock>
               </Col>
             </FormGroup>
@@ -388,7 +373,7 @@ export default class MessengerModule extends React.Component {
           <InputGroup>
             <InputGroup.Addon>{prefix}</InputGroup.Addon>
             <FormControl name="hostname" {...props} type="text"
-              value={this.state.hostname} onChange={this.handleChange} />
+              value={this.state.hostname} onChange={::this.handleChange} />
             <InputGroup.Addon>{suffix}</InputGroup.Addon>
           </InputGroup>
         </Col>
@@ -418,7 +403,7 @@ export default class MessengerModule extends React.Component {
           <FormControl name={name} {...props}
             componentClass="textarea" rows="3"
             value={this.state[name]}
-            onChange={this.handleChange} />
+            onChange={::this.handleChange} />
         </Col>
       </FormGroup>
     )
@@ -430,7 +415,7 @@ export default class MessengerModule extends React.Component {
         {this.renderLabel(label, link)}
         <Col sm={7}>
           <Checkbox name={name} checked={this.state[name]}
-            onChange={this.handleChangeCheckBox} />
+            onChange={::this.handleChangeCheckBox} />
         </Col>
       </FormGroup>
     )
@@ -485,34 +470,34 @@ export default class MessengerModule extends React.Component {
         <FormGroup>
           {this.renderLabel('Target Audience', this.state.homepage+'#target-audience')}
           <Col sm={7}>
-            <Radio name="targetAudience" value="openToAll" checked={this.state.targetAudience === "openToAll"} onChange={this.handleChange}>Open the bot to all users</Radio>
-            <Radio name="targetAudience" value="openToSome" checked={this.state.targetAudience === "openToSome"} onChange={this.handleChange}>Open the bot just to some users</Radio>
+            <Radio name="targetAudience" value="openToAll" checked={this.state.targetAudience === "openToAll"} onChange={::this.handleChange}>Open the bot to all users</Radio>
+            <Radio name="targetAudience" value="openToSome" checked={this.state.targetAudience === "openToSome"} onChange={::this.handleChange}>Open the bot just to some users</Radio>
             { this.state.targetAudience == "openToSome" ?
               <FormGroup className={style.insideRadioFormGroup}>
                 <Col sm={12}>
                   <FormControl name="targetAudienceOpenToSome"
                     componentClass="textarea" rows="3"
                     value={this.state['targetAudienceOpenToSome']}
-                    onChange={this.handleChange} />
+                    onChange={::this.handleChange} />
                   <HelpBlock>Separate countries by commas. You must use a <a target="_blank" href="https://en.wikipedia.org/wiki/ISO_3166-1#Current_codes">ISO-3361 Alpha 2 code</a>.</HelpBlock>
                 </Col>
               </FormGroup>
               :null
             }
-            <Radio name="targetAudience" value="closeToSome" checked={this.state.targetAudience === "closeToSome"} onChange={this.handleChange}>Close the bot just to some users</Radio>
+            <Radio name="targetAudience" value="closeToSome" checked={this.state.targetAudience === "closeToSome"} onChange={::this.handleChange}>Close the bot just to some users</Radio>
             { this.state.targetAudience == "closeToSome" ?
               <FormGroup className={style.insideRadioFormGroup}>
                 <Col sm={12}>
                   <FormControl name="targetAudienceCloseToSome"
                       componentClass="textarea" rows="3"
                       value={this.state['targetAudienceCloseToSome']}
-                      onChange={this.handleChange} />
+                      onChange={::this.handleChange} />
                   <HelpBlock>Separate countries by commas. You must use a <a target="_blank" href="https://en.wikipedia.org/wiki/ISO_3166-1#Current_codes">ISO-3361 Alpha 2 code</a>.</HelpBlock>
                 </Col>
               </FormGroup>
               :null
             }
-            <Radio name="targetAudience" value="closeToAll" checked={this.state.targetAudience === "closeToAll"} onChange={this.handleChange}>Close the bot to all users</Radio>
+            <Radio name="targetAudience" value="closeToAll" checked={this.state.targetAudience === "closeToAll"} onChange={::this.handleChange}>Close the bot to all users</Radio>
           </Col>
         </FormGroup>
       </div>
@@ -551,7 +536,7 @@ export default class MessengerModule extends React.Component {
       this.state.paymentTesters = []
     }
 
-    const paymentTestersElement = this.state.paymentTesters.map(this.renderPaymentTesterElement)
+    const paymentTestersElement = this.state.paymentTesters.map(::this.renderPaymentTesterElement)
 
     const matchingUsers = this.state.matchingUsers.map((idx) => this.renderAutoComplete(this.state.users[idx]))
     return (
@@ -571,7 +556,7 @@ export default class MessengerModule extends React.Component {
             <FormControl
               ref={(input) => this.paymentTesterInput = input}
               type="text"
-              onChange={this.handlePaymentTesterChange} />
+              onChange={::this.handlePaymentTesterChange} />
             {matchingUsers}
             <Button className='bp-button' onClick={() => this.handleAddToPaymentTesterList()}>
               Add payment tester
@@ -596,7 +581,7 @@ export default class MessengerModule extends React.Component {
           <ControlLabel>Update Home URL</ControlLabel>
           <FormControl name="chatExtensionHomeUrl" type="text"
             value={this.state.chatExtensionHomeUrl}
-            onChange={this.handleChange}/>
+            onChange={::this.handleChange}/>
         </Col>
       </FormGroup>
       <FormGroup>
@@ -606,7 +591,7 @@ export default class MessengerModule extends React.Component {
         <Col sm={7}>
           <Checkbox name="chatExtensionShowShareButton"
             checked={this.state.chatExtensionShowShareButton}
-            onChange={this.handleChangeCheckBox} />
+            onChange={::this.handleChangeCheckBox} />
         </Col>
       </FormGroup>
       <FormGroup>
@@ -616,7 +601,7 @@ export default class MessengerModule extends React.Component {
         <Col sm={7}>
           <Checkbox name="chatExtensionInTest"
             checked={this.state.chatExtensionInTest}
-            onChange={this.handleChangeCheckBox} />
+            onChange={::this.handleChangeCheckBox} />
         </Col>
       </FormGroup>
     </div>)
@@ -664,33 +649,21 @@ export default class MessengerModule extends React.Component {
 
   renderSaveButton() {
     return (
-      <Button className='bp-button' onClick={this.handleSaveChanges}>
+      <Button className='bp-button' onClick={::this.handleSaveChanges}>
         Save
       </Button>
     )
   }
 
-  renderConnectionValidation() {
-    const validatedText = <ControlLabel>All your connection settings are valid.</ControlLabel>
-    const button = <Button className='bp-button' onClick={this.handleValidation}>Validate</Button>
-
-    return <FormGroup>
-        {this.renderLabel('Validation', this.state.homepage+'#5-validate-and-connect')}
-        <Col sm={7}>
-          {this.state.validated ? validatedText : button}
-        </Col>
-      </FormGroup>
-  }
-
   renderConnectionButton() {
     const disconnectButton = (
-      <Button className='bp-button' onClick={this.handleConnection}>
+      <Button className='bp-button' onClick={::this.handleDisconnection}>
         Disconnect
       </Button>
     )
 
     const connectButton = (
-       <Button className='bp-button' onClick={this.handleConnection}>
+       <Button className='bp-button' onClick={::this.handleConnection}>
          {this.state.initialStateHash && this.state.initialStateHash !== this.getStateHash()
             ? 'Save & Connect'
             : 'Connect'
@@ -747,11 +720,9 @@ export default class MessengerModule extends React.Component {
       <FormGroup>
         {this.renderLabel('Facebook Page Details','')}
         <Col sm={7}>
-          <Button className='bp-button' onClick={this.getPageDetails}>Get Facebook Page Details</Button>
+          <Button className='bp-button' onClick={::this.getPageDetails}>Get Facebook Page Details</Button>
         </Col>
-
         {content}
-
       </FormGroup>
     )
   }
