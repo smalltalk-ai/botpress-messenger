@@ -144,6 +144,8 @@ We **highly recommand** to set your configuration in the `botpress-messenger.con
   enabled: false
 ```
 
+> **Be careful:** Configurations set in `botpress-messenger.config.yml` override other configurations set using the UI. If you want to use the UI to set them, you need to remove the file.
+
 > **Tip:** You can also set all the other configs using this configuration file, simply add them and it will override configuration set in the database.
 
 ##### 1. Create a [**Facebook page**](https://www.facebook.com/pages/create) and a [**Messenger application**](https://developers.facebook.com).
@@ -168,11 +170,57 @@ Acces token is available in Messenger section of developers. You need to copy it
   - **[localtunnel](https://github.com/localtunnel/localtunnel)** *(recommanded)*
   - **[ngrok](https://ngrok.com)** *(recommanded)*
   
-
   4.2. You have to setup webhook on Facebook developers page. You will need to set them on [facebook developers](https://developers.facebook.com) administration panel of your bot (*Facebook developer page > Webhooks > Edit Subscription*) and set **callback URL** correctly `${YOUR_HOSTMANE}/api/botpress-messenger/webhook`. You will also need to set the **verification token** that match your settings. 
 
 <img alt='Weebhook' src='/assets/webhook.png' width='500px;' />
 
+###### How-to: Pagekite (recommanded)
+
+First, you will need to [download and install](http://pagekite.net/downloads) it. Once you have **pagekite** installed, you will need **create an account** on their website to get a fix hostname URL (**add kite**).
+
+Once you have your **kite**, you will need to run `pagekite.py ${YOUR_KITE} ${PORT}` in your terminal to open a local tunnel.
+
+```
+  pagekite.py example.pagekite.me 3000
+```
+
+Now, you will have a fix **hostname** for your configurations, so simply set it up using the UI or your configuration file.
+
+###### How-to: localtunnel
+
+First thin you need to do is to [download and install](https://localtunnel.github.io/www/). 
+
+```
+npm install -g localtunnel
+```
+
+Once you have it installed globally on your machine, you can open a local tunnel using the following command:
+
+```
+lt --port 3000
+```
+
+After, take the given URL to set the **hostname** of your configuration.
+
+> **Be careful:** You will need to reset your **hostname** every time you restart localtunnel because your URL is not fix and it will change each time.
+
+###### How-to: ngrok
+
+First, you will need to [download and install](https://ngrok.com/download) it. 
+
+```
+npm install -g ngrok
+```
+
+Once you have ngrok installed globally, you can open a tunnel using the following command:
+
+```
+ngrok http 3000
+```
+
+After, take the given URL to set the **hostname** of your configuration.
+
+> **Be careful:** You will need to reset your **hostname** every time you restart ngrok because your URL is not fix and it will change each time.
 
 ##### 5. Validate and Connect!
 
