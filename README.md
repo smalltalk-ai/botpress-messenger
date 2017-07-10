@@ -144,16 +144,20 @@ We **highly recommand** to set your configuration in the `botpress-messenger.con
   enabled: false
 ```
 
-> **Be careful:** Configurations set in `botpress-messenger.config.yml` override other configurations set using the UI. If you want to use the UI to set them, you need to remove the file.
+> **Be careful:** Configurations set in `botpress-messenger.config.yml` override other configurations set using the UI. If you want to use the UI to set them, you need to remove the file or comment the appropriate lines.
 
-> **Tip:** You can also set all the other configs using this configuration file, simply add them and it will override configuration set in the database.
+You can also set all the other configs using this configuration file, simply add them and it will override configuration set in the database.
+
+```
+  displayGetStarted: false
+```
 
 #### 1. Create a [**Facebook page**](https://www.facebook.com/pages/create) and a [**Messenger application**](https://developers.facebook.com).
 
 <img alt='Create app' src='/assets/create-app-facebook.png' width='500px' />
 
 #### 2. Get App ID and App Secret
-These information are available on dashboard of developers page. You only need to copy them in module interface.
+These information are available on the dashboard of developers page. You only need to copy them in module interface.
 
 <img alt='App id' src='/assets/app-id-app-secret.png' width='400px' />
 
@@ -164,7 +168,7 @@ Acces token is available in Messenger section of developers. You need to copy it
 
 #### 4. Setup Hostname
 
-  4.1. You need to manually set your **hostname**, here are some you secure tunnels to localhost tools, we suggest you to use for local development:
+  4.1. You need to manually set your **hostname**. We suggest you to some one of the following tools to create a secure tunnel to your localhost:
 
   - **[pagekite](https://pagekite.net/)** *(highly recommanded, to get a fix url)*
   - **[localtunnel](https://github.com/localtunnel/localtunnel)** *(recommanded)*
@@ -176,31 +180,31 @@ Acces token is available in Messenger section of developers. You need to copy it
 
 ##### How-to: Pagekite (recommanded)
 
-First, you will need to [download and install](http://pagekite.net/downloads) it. Once you have **pagekite** installed, you will need **create an account** on their website to get a fix hostname URL (**add kite**).
+First, you will need to [download and install](http://pagekite.net/downloads) it. Once you have **pagekite** installed, you will need **sing up** on their website to get your fix hostname URL by creating a kite(**add kite**).
 
-Once you have your **kite**, you will need to run `pagekite.py ${YOUR_KITE} ${PORT}` in your terminal to open a local tunnel.
+Once you have your **kite** available, you will need to run `pagekite.py ${YOUR_KITE} ${PORT}` in your terminal to open a local tunnel.
 
 ```
   pagekite.py example.pagekite.me 3000
 ```
 
-Now, you will have a fix **hostname** for your configurations, so simply set it up using the UI or your configuration file.
+You will have a fix **hostname** for your configurations, so you can simply set it up using the UI or your configuration file.
 
 ##### How-to: localtunnel
 
-First thin you need to do is to [download and install](https://localtunnel.github.io/www/). 
+First, you need to [download and install](https://localtunnel.github.io/www/) it. 
 
 ```
-npm install -g localtunnel
+  npm install -g localtunnel
 ```
 
 Once you have it installed globally on your machine, you can open a local tunnel using the following command:
 
 ```
-lt --port 3000
+  lt --port 3000
 ```
 
-After, take the given URL to set the **hostname** of your configuration.
+After, you will need to get the given URL to set the **hostname** of your configuration.
 
 > **Be careful:** You will need to reset your **hostname** every time you restart localtunnel because your URL is not fix and it will change each time.
 
@@ -209,16 +213,16 @@ After, take the given URL to set the **hostname** of your configuration.
 First, you will need to [download and install](https://ngrok.com/download) it. 
 
 ```
-npm install -g ngrok
+  npm install -g ngrok
 ```
 
 Once you have ngrok installed globally, you can open a tunnel using the following command:
 
 ```
-ngrok http 3000
+  ngrok http 3000
 ```
 
-After, take the given URL to set the **hostname** of your configuration.
+After, like for others, you get the given URL to set the **hostname** of your configuration.
 
 > **Be careful:** You will need to reset your **hostname** every time you restart ngrok because your URL is not fix and it will change each time.
 
