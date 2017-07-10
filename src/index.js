@@ -63,17 +63,6 @@ const initializeMessenger = (bp, configurator) => {
 
     return messenger.validateConfig()
     .then(() => messenger.connect())
-    .then(() => bp.notifications.send({
-      level: 'success',
-      message: 'connection and messenger app webhook updated'
-    }))
-    .catch(err => {
-      bp.logger.warn('[botpress-messenger] some critical config are missing\n', err)
-      bp.notifications.send({
-        level: 'warn',
-        message: 'Error updating app webhook. Please see logs for details.'
-      })
-    })
 
     // Regenerate a new ngrok url and update it to facebook --> DEPRECATED (@2.1.4)
 
@@ -127,11 +116,11 @@ module.exports = {
     appSecret: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_SECRET' },
     verifyToken: { type: 'string', required: false, default: uuid.v4() },
     enabled: { type: 'bool', required: true, default: true },
-    validated: { type: 'bool', required: false, default: false }, // DEPRECATED (@2.1.4) --> automaticcaly reconfigure on start (config = enabled)
-    connected: { type: 'bool', required: false, default: false }, // DEPRECATED (@2.1.4) --> automaticcaly reconfigure on start (config = enabled)
+    // validated: { type: 'bool', required: false, default: false }, DEPRECATED (@2.1.4) --> automaticcaly reconfigure on start (config = enabled)
+    // connected: { type: 'bool', required: false, default: false }, DEPRECATED (@2.1.4) --> automaticcaly reconfigure on start (config = enabled)
     hostname: { type: 'string', required: false, default: '' },
     homepage: { type: 'string' },
-    ngrok: { type: 'bool', required: false, default: false }, // DEPRECATED (@2.1.4) --> automaticcaly reconfigure on start (config = enabled)
+    // ngrok: { type: 'bool', required: false, default: false }, DEPRECATED (@2.1.4) --> automaticcaly reconfigure on start (config = enabled)
     displayGetStarted: { type: 'bool', required: false, default: true },
     greetingMessage: { type: 'string', required: false, default: 'Default greeting message' },
     persistentMenu: { type: 'bool', required: false, default: false },
@@ -227,6 +216,10 @@ module.exports = {
         })
       })
 
+      router.get('/connected', (req, res) => {
+        res.send(messenger.isConnected())
+      })
+
       // DEPRECATED (@2.1.4)
       // router.get('/ngrok', (req, res) => {
       //   ngrok.getUrl()
@@ -235,6 +228,12 @@ module.exports = {
 
       router.post('/connection', (req, res) => {
         messenger.connect()
+        .then(() => res.sendStatus(200))
+        .catch((err) => res.status(500).send({ message: err.message }))
+      })
+
+      router.post('/disconnection', (req, res) => {
+        messenger.disconnect()
         .then(() => res.sendStatus(200))
         .catch((err) => res.status(500).send({ message: err.message }))
       })
