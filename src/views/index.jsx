@@ -52,7 +52,7 @@ export default class MessengerModule extends React.Component {
     this.renderDomainElement = this.renderDomainElement.bind(this)
     this.renderAutoComplete = this.renderAutoComplete.bind(this)
     this.renderPaymentTesterElement = this.renderPaymentTesterElement.bind(this)
-    this.handleChangeNGrokCheckBox = this.handleChangeNGrokCheckBox.bind(this)
+    // this.handleChangeNGrokCheckBox = this.handleChangeNGrokCheckBox.bind(this) --> DEPRECATED (@2.1.4)
     this.handleDismissError = this.handleDismissError.bind(this)
     this.renderGetStartedMessage = this.renderGetStartedMessage.bind(this)
     this.getPageDetails = this.getPageDetails.bind(this)
@@ -103,7 +103,7 @@ export default class MessengerModule extends React.Component {
       'displayGetStarted',
       'greetingMessage',
       'hostname',
-      'ngrok',
+      // 'ngrok', --> DEPRECATED (@2.1.4)
       'persistentMenu',
       'persistentMenuItems',
       'targetAudience',
@@ -212,19 +212,21 @@ export default class MessengerModule extends React.Component {
     this.setState({[name]: !this.state[name]})
   }
 
-  handleChangeNGrokCheckBox() {
-    if (!this.state.ngrok) {
-      this.getAxios().get('/api/botpress-messenger/ngrok')
-      .then(res => {
-        this.setState({ hostname: res.data.replace(/https:\/\//i, '') })
-      })
-    }
+  // DEPRECATED (@2.1.4)
 
-    this.setState({
-      validated: false,
-      ngrok: !this.state.ngrok
-    })
-  }
+  // handleChangeNGrokCheckBox() {
+  //   if (!this.state.ngrok) {
+  //     this.getAxios().get('/api/botpress-messenger/ngrok')
+  //     .then(res => {
+  //       this.setState({ hostname: res.data.replace(/https:\/\//i, '') })
+  //     })
+  //   }
+
+  //   this.setState({
+  //     validated: false,
+  //     ngrok: !this.state.ngrok
+  //   })
+  // }
 
   handleRemoveFromList(value, name) {
     this.setState({
@@ -395,17 +397,18 @@ export default class MessengerModule extends React.Component {
     )
   }
 
-  renderNGrokCheckbox(props) {
-    return (
-      <FormGroup>
-        {this.renderLabel('Use ngrok', 'https://ngrok.com/')}
-        <Col sm={7}>
-          <Checkbox name='ngrok' {...props} checked={this.state.ngrok}
-            onChange={this.handleChangeNGrokCheckBox} />
-        </Col>
-      </FormGroup>
-    )
-  }
+  // DEPRECATED (@2.1.4)
+  // renderNGrokCheckbox(props) {
+  //   return (
+  //     <FormGroup>
+  //       {this.renderLabel('Use ngrok', 'https://ngrok.com/')}
+  //       <Col sm={7}>
+  //         <Checkbox name='ngrok' {...props} checked={this.state.ngrok}
+  //           onChange={this.handleChangeNGrokCheckBox} />
+  //       </Col>
+  //     </FormGroup>
+  //   )
+  // }
 
   renderTextAreaInput(label, name, link, props = {}) {
     return (
@@ -763,7 +766,6 @@ export default class MessengerModule extends React.Component {
             {this.renderTextAreaInput('Access Token', 'accessToken', this.state.homepage+'#3-get-access-token', { disabled: this.state.connected })}
             {this.renderTextInput('App Secret', 'appSecret', this.state.homepage+'#2-get-app-id-and-app-secret', { disabled: this.state.connected })}
             {this.renderHostnameTextInput({ disabled: (this.state.ngrok || this.state.connected) })}
-            {this.renderNGrokCheckbox( {disabled: this.state.connected} )}
             {this.renderConnectionButton()}
           </div>
         </div>

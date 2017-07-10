@@ -13,7 +13,7 @@ import Messenger from './messenger'
 import actions from './actions'
 import outgoing from './outgoing'
 import incoming from './incoming'
-import ngrok from './ngrok' // TODO Switch to localtunnel or pagekite (deprecated)
+//import ngrok from './ngrok' --> DEPRECATED (@2.1.4)
 import Users from './users'
 import UMM from './umm'
 
@@ -75,7 +75,7 @@ const initializeMessenger = (bp, configurator) => {
       })
     })
 
-    // Regenerate a new ngrok url and update it to facebook (deprecated)
+    // Regenerate a new ngrok url and update it to facebook --> DEPRECATED (@2.1.4)
 
     // if (!config.ngrok || !config.connected) {
     //   return Promise.resolve(true)
@@ -127,11 +127,11 @@ module.exports = {
     appSecret: { type: 'string', required: true, default: '', env: 'MESSENGER_APP_SECRET' },
     verifyToken: { type: 'string', required: false, default: uuid.v4() },
     enabled: { type: 'bool', required: true, default: true },
-    validated: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
-    connected: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
+    validated: { type: 'bool', required: false, default: false }, // DEPRECATED (@2.1.4) --> automaticcaly reconfigure on start (config = enabled)
+    connected: { type: 'bool', required: false, default: false }, // DEPRECATED (@2.1.4) --> automaticcaly reconfigure on start (config = enabled)
     hostname: { type: 'string', required: false, default: '' },
     homepage: { type: 'string' },
-    ngrok: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
+    ngrok: { type: 'bool', required: false, default: false }, // DEPRECATED (@2.1.4) --> automaticcaly reconfigure on start (config = enabled)
     displayGetStarted: { type: 'bool', required: false, default: true },
     greetingMessage: { type: 'string', required: false, default: 'Default greeting message' },
     persistentMenu: { type: 'bool', required: false, default: false },
@@ -142,8 +142,8 @@ module.exports = {
     targetAudienceOpenToSome: { type: 'string', required: false },
     targetAudienceCloseToSome: { type: 'string', required: false },
     trustedDomains: { type: 'any', required: false, default: [], validation: v => _.isArray(v) },
-    autoRespondGetStarted: { type: 'bool', required: false, default: true }, // deprecated
-    autoResponse: { type: 'string', required: false, default: 'Hello!' },     // deprecated
+    autoRespondGetStarted: { type: 'bool', required: false, default: true }, // DEPRECATED (@2.0.0)
+    autoResponse: { type: 'string', required: false, default: 'Hello!' },     // DEPRECATED (@2.0.0)
     autoResponseOption: { type: 'string', required: false, default: 'autoResponseText' },
     autoResponseText: { type: 'string', required: false, default: 'Hello, human!' },
     autoResponsePostback: { type: 'string', required: false, default: 'YOUR_POSTBACK' },
@@ -227,21 +227,16 @@ module.exports = {
         })
       })
 
-      router.get('/ngrok', (req, res) => {
-        ngrok.getUrl()
-        .then(url => res.send(url))
-      })
+      // DEPRECATED (@2.1.4)
+      // router.get('/ngrok', (req, res) => {
+      //   ngrok.getUrl()
+      //   .then(url => res.send(url))
+      // })
 
       router.post('/connection', (req, res) => {
-        if (messenger.getConfig().connected) {
-          messenger.disconnect()
-          .then(() => res.sendStatus(200))
-          .catch((err) => res.status(500).send({ message: err.message }))
-        } else {
-          messenger.connect()
-          .then(() => res.sendStatus(200))
-          .catch((err) => res.status(500).send({ message: err.message }))
-        }
+        messenger.connect()
+        .then(() => res.sendStatus(200))
+        .catch((err) => res.status(500).send({ message: err.message }))
       })
 
       router.post('/validation', (req, res) => {
