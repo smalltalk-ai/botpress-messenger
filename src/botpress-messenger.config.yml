@@ -1,6 +1,6 @@
-# applicationID: ''
-# accessToken: ''
-# appSecret: ''
-# verifyToken: ''
-# hostname: ''
-# enabled: false
+applicationID: 'Set by botpress-messenger.config.yml file...'
+accessToken: 'Set by botpress-messenger.config.yml file...'
+appSecret: 'Set by botpress-messenger.config.yml file...'
+verifyToken: 'Set by botpress-messenger.config.yml file...'
+hostname: 'Set by botpress-messenger.config.yml file...'
+enabled: false
