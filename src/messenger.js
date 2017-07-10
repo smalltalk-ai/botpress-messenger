@@ -32,6 +32,7 @@ class Messenger extends EventEmitter {
 
     this.setConfig(config)
     this.bp = bp
+    this.connected = false
 
     bp.db.get()
     .then(k => {
@@ -62,7 +63,7 @@ class Messenger extends EventEmitter {
   validateConfig() {
     return new Promise((resolve, reject) => {
       if (!this.config.enabled) {
-        this.bp.logger.warn('[botpress-messenger] need to enabled connection, please look to your config')
+        this.bp.logger.warn('[botpress-messenger] need to enabled connection, please look to your config file (botpress-messenger.config.yml)')
         this.bp.notifications.send({
           level: 'warn',
           message: 'Need to enabled connection, please look to your configuration.'
@@ -86,10 +87,27 @@ class Messenger extends EventEmitter {
   connect() {
     return this._setupNewWebhook()
     .then(() => this._subscribePage())
+    .then(() => this.bp.notifications.send({
+      level: 'success',
+      message: 'connection and messenger app webhook updated'
+    }))
+    .then(() => this.connected = true)
+    .catch(err => {
+      this.bp.logger.warn('[botpress-messenger] some critical config are missing\n', err)
+      this.bp.notifications.send({
+        level: 'warn',
+        message: 'Error updating app webhook. Please see logs for details.'
+      })
+    })
   }
 
   disconnect() {
     return this._unsubscribePage()
+    .then(this.connected = false)
+  }
+
+  isConnected() {
+    return this.connected
   }
 
   sendTextMessage(recipientId, text, quickReplies, options) {
