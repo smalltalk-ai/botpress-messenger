@@ -148,21 +148,21 @@ We **highly recommand** to set your configuration in the `botpress-messenger.con
 
 > **Tip:** You can also set all the other configs using this configuration file, simply add them and it will override configuration set in the database.
 
-##### 1. Create a [**Facebook page**](https://www.facebook.com/pages/create) and a [**Messenger application**](https://developers.facebook.com).
+#### 1. Create a [**Facebook page**](https://www.facebook.com/pages/create) and a [**Messenger application**](https://developers.facebook.com).
 
 <img alt='Create app' src='/assets/create-app-facebook.png' width='500px' />
 
-##### 2. Get App ID and App Secret
+#### 2. Get App ID and App Secret
 These information are available on dashboard of developers page. You only need to copy them in module interface.
 
 <img alt='App id' src='/assets/app-id-app-secret.png' width='400px' />
 
-##### 3. Get Access token
+#### 3. Get Access token
 Acces token is available in Messenger section of developers. You need to copy it in the appropriate section of botpress-messenger UI.
 
 <img alt='Acces token' src='/assets/access-token.png' width='500px;' />
 
-##### 4. Setup Hostname
+#### 4. Setup Hostname
 
   4.1. You need to manually set your **hostname**, here are some you secure tunnels to localhost tools, we suggest you to use for local development:
 
@@ -174,7 +174,7 @@ Acces token is available in Messenger section of developers. You need to copy it
 
 <img alt='Weebhook' src='/assets/webhook.png' width='500px;' />
 
-###### How-to: Pagekite (recommanded)
+##### How-to: Pagekite (recommanded)
 
 First, you will need to [download and install](http://pagekite.net/downloads) it. Once you have **pagekite** installed, you will need **create an account** on their website to get a fix hostname URL (**add kite**).
 
@@ -186,7 +186,7 @@ Once you have your **kite**, you will need to run `pagekite.py ${YOUR_KITE} ${PO
 
 Now, you will have a fix **hostname** for your configurations, so simply set it up using the UI or your configuration file.
 
-###### How-to: localtunnel
+##### How-to: localtunnel
 
 First thin you need to do is to [download and install](https://localtunnel.github.io/www/). 
 
@@ -204,7 +204,7 @@ After, take the given URL to set the **hostname** of your configuration.
 
 > **Be careful:** You will need to reset your **hostname** every time you restart localtunnel because your URL is not fix and it will change each time.
 
-###### How-to: ngrok
+##### How-to: ngrok
 
 First, you will need to [download and install](https://ngrok.com/download) it. 
 
@@ -222,7 +222,7 @@ After, take the given URL to set the **hostname** of your configuration.
 
 > **Be careful:** You will need to reset your **hostname** every time you restart ngrok because your URL is not fix and it will change each time.
 
-##### 5. Validate and Connect!
+#### 5. Validate and Connect!
 
 > **Tip:** To see in details how to configure completly this module, videos are available on our [Youtube Channel](https://www.youtube.com/c/botpress)
 
