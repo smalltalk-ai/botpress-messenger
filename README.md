@@ -166,8 +166,7 @@ Acces token is available in Messenger section of developers. You need to copy it
 
   - **[pagekite](https://pagekite.net/)** *(highly recommanded, to get a fix url)*
   - **[localtunnel](https://github.com/localtunnel/localtunnel)** *(recommanded)*
-  - **[ngrok](https://ngrok.com)** *(recommanded)*
-  
+  - **[ngrok](https://ngrok.com)** *(recommanded)*  
 
   4.2. You have to setup webhook on Facebook developers page. You will need to set them on [facebook developers](https://developers.facebook.com) administration panel of your bot (*Facebook developer page > Webhooks > Edit Subscription*) and set **callback URL** correctly `${YOUR_HOSTMANE}/api/botpress-messenger/webhook`. You will also need to set the **verification token** that match your settings. 
 

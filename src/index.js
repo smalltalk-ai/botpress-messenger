@@ -13,11 +13,10 @@ import Messenger from './messenger'
 import actions from './actions'
 import outgoing from './outgoing'
 import incoming from './incoming'
-import ngrok from './ngrok' // TODO Switch to localtunnel or pagekite (deprecated)
 import Users from './users'
 import UMM from './umm'
 
-import configTemplate from './botpress-messenger.config.yml'
+import configTemplate from 'raw!./botpress-messenger.config.yml'
 
 let messenger = null
 const outgoingPending = outgoing.pending
@@ -61,47 +60,37 @@ const initializeMessenger = (bp, configurator) => {
 
     users = Users(bp, messenger)
 
-    return messenger.validateConfig()
-    .then(() => messenger.connect())
+    const configErrors = messenger.getConfigErrors()
+    const enabled = config.enabled
+
+    if (!enabled) {
+      return bp.logger.warn('[botpress-messenger] Connection disabled.')
+    }
+
+    if (configErrors.length) {
+      for (var err of configErrors) {
+        bp.logger.warn('[botpress-messenger] ' + err.message)
+      }
+
+      return bp.notifications.send({
+        level: 'error',
+        message: 'Error updating Messenger App. Please see logs for details.'
+      })
+    }
+
+    return messenger.connect()
     .then(() => bp.notifications.send({
       level: 'success',
-      message: 'connection and messenger app webhook updated'
+      message: 'Configuration and webhook updated'
     }))
     .catch(err => {
-      bp.logger.warn('[botpress-messenger] some critical config are missing\n', err)
-      bp.notifications.send({
-        level: 'warn',
-        message: 'Error updating app webhook. Please see logs for details.'
+      bp.logger.error(err)
+      return bp.notifications.send({
+        level: 'error',
+        message: 'Error updating Messenger App. Please see logs for details.'
       })
     })
 
-    // Regenerate a new ngrok url and update it to facebook (deprecated)
-
-    // if (!config.ngrok || !config.connected) {
-    //   return Promise.resolve(true)
-    // }
-
-    // bp.logger.debug('[messenger] updating ngrok to facebook')
-
-    // return ngrok.getUrl(bp.botfile.port)
-    // .then(url => {
-    //   url = url.replace(/https:\/\//i, '')
-    //   messenger.setConfig({ hostname: url })
-    // })
-    // .then(() => configurator.saveAll(messenger.getConfig()))
-    // .then(() => messenger.updateSettings())
-    // .then(() => messenger.connect())
-    // .then(() => bp.notifications.send({
-    //   level: 'info',
-    //   message: 'Upgraded messenger app webhook with new ngrok url'
-    // }))
-    // .catch(err => {
-    //   bp.logger.error('[messenger] error updating ngrok', err)
-    //   bp.notifications.send({
-    //     level: 'error',
-    //     message: 'Error updating app webhook with new ngrok url. Please see logs for details.'
-    //   })
-    // })
   })
 }
 
@@ -131,7 +120,6 @@ module.exports = {
     connected: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
     hostname: { type: 'string', required: false, default: '' },
     homepage: { type: 'string' },
-    ngrok: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
     displayGetStarted: { type: 'bool', required: false, default: true },
     greetingMessage: { type: 'string', required: false, default: 'Default greeting message' },
     persistentMenu: { type: 'bool', required: false, default: false },
@@ -203,13 +191,7 @@ module.exports = {
     .then(() => {
       incoming(bp, messenger)
 
-      messenger.on('raw_webhook_body', e => {
-        bp.events.emit('messenger.raw_webhook_body', e)
-      })
-
-      messenger.on('raw_send_request', e => {
-        bp.events.emit('messenger.raw_send_body', e)
-      })
+      bp.messenger._internal = messenger
 
       const router = bp.getRouter('botpress-messenger')
 
@@ -225,11 +207,6 @@ module.exports = {
         .catch((err) => {
           res.status(500).send({ message: err.message })
         })
-      })
-
-      router.get('/ngrok', (req, res) => {
-        ngrok.getUrl()
-        .then(url => res.send(url))
       })
 
       router.post('/connection', (req, res) => {
