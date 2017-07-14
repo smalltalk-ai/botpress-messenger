@@ -151,7 +151,7 @@ Acces token is available in Messenger section of developers. You need to copy it
 
 ##### 4. Setup Hostname
 
-  4.1. You need to manually enter your hostname or you cans use **[ngrok](#ngrok)** to locally deploy your chatbot ([learn more about ngrok]((https://ngrok.com))
+  4.1. You need to manually enter your hostname or you cans use **[ngrok](#ngrok)** to locally deploy your chatbot ([learn more about ngrok]((https://ngrok.com)). You can also use [pagekite](pagekite.net) which works much more reliably than ngrok but costs a little money.
 
   4.2. You don't have to setup webhook on Facebook developers page, this module automatically do it for you via Facebook API.
 
