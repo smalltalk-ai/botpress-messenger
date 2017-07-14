@@ -144,7 +144,7 @@ We **highly recommand** to set your configuration in the `botpress-messenger.con
   enabled: false
 ```
 
-> **Be careful:** Configurations set in `botpress-messenger.config.yml` override other configurations set using the UI. If you want to use the UI to set them, you need to remove the file or comment the appropriate lines.
+> **Be careful:** Configurations set in `botpress-messenger.config.yml` override other configurations set using the UI. If you want to use the UI to set them, you need to comment the appropriate lines.
 
 You can also set all the other configs using this configuration file, simply add them and it will override configuration set in the database.
 
