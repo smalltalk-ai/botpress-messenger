@@ -133,18 +133,9 @@ To setup connexion of your chatbot to Messenger, you need to fill the connexion 
 
 <img alt='Connexion settings' src='assets/connexion-settings.png' width='700px'/>
 
-We **highly recommand** to set your configuration in the `botpress-messenger.config.yml` file that has been automatically created for you, so you won't have any problem to migrate and commit your configuration settings. 
+We **highly recommand** to set your configuration in the `botpress-messenger.config.yml` file that has been automatically created for you, so you won't have any problem to migrate and commit your configuration settings. Settings in this file can (and should) be overwritten by environment variables in production.
 
-```yaml
-  applicationID: ''
-  accessToken: ''
-  appSecret: ''
-  verifyToken: ''
-  hostname: ''
-  enabled: false
-```
-
-> **Tip:** You can also set all the other configs using this configuration file, simply add them and it will override configuration set in the database.
+> **Tip:** You can also set all the other configs using this configuration file, simply add them and it will override the configuration set in the database.
 
 ##### 1. Create a [**Facebook page**](https://www.facebook.com/pages/create) and a [**Messenger application**](https://developers.facebook.com).
 
@@ -162,18 +153,15 @@ Acces token is available in Messenger section of developers. You need to copy it
 
 ##### 4. Setup Hostname
 
-  4.1. You need to manually set your **hostname**, here are some you secure tunnels to localhost tools, we suggest you to use for local development:
+You need to manually set your **hostname**, here are some you secure tunnels to localhost tools, we suggest you to use for local development:
 
   - **[pagekite](https://pagekite.net/)** *(highly recommanded, to get a fix url)*
   - **[localtunnel](https://github.com/localtunnel/localtunnel)** *(recommanded)*
-  - **[ngrok](https://ngrok.com)** *(recommanded)*  
+  - **[ngrok](https://ngrok.com)** *(recommanded)*
 
-  4.2. You have to setup webhook on Facebook developers page. You will need to set them on [facebook developers](https://developers.facebook.com) administration panel of your bot (*Facebook developer page > Webhooks > Edit Subscription*) and set **callback URL** correctly `${YOUR_HOSTMANE}/api/botpress-messenger/webhook`. You will also need to set the **verification token** that match your settings. 
+In production, the hostname is your public server hostname (for example your heroku address).
 
-<img alt='Weebhook' src='/assets/webhook.png' width='500px;' />
-
-
-##### 5. Validate and Connect!
+##### 5. Connect
 
 > **Tip:** To see in details how to configure completly this module, videos are available on our [Youtube Channel](https://www.youtube.com/c/botpress)
 
