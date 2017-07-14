@@ -1,6 +1,6 @@
 # botpress-messenger
 
-<img src="https://cdn.rawgit.com/botpress/botpress/7e007114/assets/supports_UMM.png" height="60px" />
+[<img src="https://cdn.rawgit.com/botpress/botpress/7e007114/assets/supports_UMM.png" height="60px" />](https://botpress.io/docs/foundamentals/umm.html)
 
 Official Facebook Messenger connector module for [Botpress](http://github.com/botpress/botpress).
 
@@ -131,9 +131,20 @@ It's also possible to install it through the Botpress UI in the modules section.
 
 To setup connexion of your chatbot to Messenger, you need to fill the connexion settings directly in the module interface. In fact, you only need to follow these 5 steps and your bot will be active.
 
-All the information filled in the UI are store into the database.If you want, you can change your information directly into your database. You can have more information [here](https://github.com/botpress/botpress/blob/master/docs/modules/how-to-configure-my-module.md#where-is-the-configuration-saved--is-the-configuration-persisted-in-database)
-
 <img alt='Connexion settings' src='assets/connexion-settings.png' width='700px'/>
+
+We **highly recommand** to set your configuration in the `botpress-messenger.config.yml` file that has been automatically created for you, so you won't have any problem to migrate and commit your configuration settings. 
+
+```yaml
+  applicationID: ''
+  accessToken: ''
+  appSecret: ''
+  verifyToken: ''
+  hostname: ''
+  enabled: false
+```
+
+> **Tip:** You can also set all the other configs using this configuration file, simply add them and it will override configuration set in the database.
 
 ##### 1. Create a [**Facebook page**](https://www.facebook.com/pages/create) and a [**Messenger application**](https://developers.facebook.com).
 
@@ -151,14 +162,20 @@ Acces token is available in Messenger section of developers. You need to copy it
 
 ##### 4. Setup Hostname
 
-  4.1. You need to manually enter your hostname or you cans use **[ngrok](#ngrok)** to locally deploy your chatbot ([learn more about ngrok]((https://ngrok.com)). You can also use [pagekite](pagekite.net) which works much more reliably than ngrok but costs a little money.
+  4.1. You need to manually set your **hostname**, here are some you secure tunnels to localhost tools, we suggest you to use for local development:
 
-  4.2. You don't have to setup webhook on Facebook developers page, this module automatically do it for you via Facebook API.
+  - **[pagekite](https://pagekite.net/)** *(highly recommanded, to get a fix url)*
+  - **[localtunnel](https://github.com/localtunnel/localtunnel)** *(recommanded)*
+  - **[ngrok](https://ngrok.com)** *(recommanded)*  
+
+  4.2. You have to setup webhook on Facebook developers page. You will need to set them on [facebook developers](https://developers.facebook.com) administration panel of your bot (*Facebook developer page > Webhooks > Edit Subscription*) and set **callback URL** correctly `${YOUR_HOSTMANE}/api/botpress-messenger/webhook`. You will also need to set the **verification token** that match your settings. 
+
+<img alt='Weebhook' src='/assets/webhook.png' width='500px;' />
+
 
 ##### 5. Validate and Connect!
 
-To see in details how to configure completly this module, videos are available on our Youtube Channel \(soon\).
-
+> **Tip:** To see in details how to configure completly this module, videos are available on our [Youtube Channel](https://www.youtube.com/c/botpress)
 
 ## Features
 
