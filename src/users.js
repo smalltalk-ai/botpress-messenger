@@ -1,72 +1,58 @@
-'use strict'
-
-/**
- *
- * User info helper.
- *
- * This helper provides following methods:
- *
- *   - getOrFetchUserProfile: given `userId` return a promise of user data (with cache)
- *
- * Data users' profiles will be cached in `${bp.dataLocation}/botpress-messenger.profiles.json`
- *
- */
-
-const Promise = require('bluebird')
-const path = require('path')
-const fs = require('fs')
+const _ = require('lodash')
 
 module.exports = function(bp, messenger) {
 
-  const filename = path.join(
-    bp.dataLocation,
-    'botpress-messenger.profiles.json'
-    )
-
-  const loadUserProfiles = () => {
-    if (fs.existsSync(filename)) {
-      return JSON.parse(fs.readFileSync(filename))
+  function profileToDbEntry(profile) {
+    return {
+      id: profile.id,
+      platform: 'facebook',
+      gender: profile.gender,
+      timezone: profile.timezone,
+      locale: profile.locale,
+      picture_url: profile.profile_pic,
+      first_name: profile.first_name,
+      last_name: profile.last_name
     }
-    return {}
   }
 
-  const saveUserProfiles = (profiles) => {
-    const content = JSON.stringify(profiles)
-    fs.writeFileSync(filename, content)
-    bp.logger.debug('messenger: saved user profiles to disk')
+  function dbEntryToProfile(db) {
+    return {
+      gender: db.gender,
+      timezone: db.timezone,
+      locale: db.locale,
+      profile_pic: db.picture_url,
+      first_name: db.first_name,
+      last_name: db.last_name,
+      id: db.userId
+    }
   }
 
-  const userProfiles = loadUserProfiles()
-  let cacheTs = new Date()
+  async function getOrFetchUserProfile(userId) {
+    const knex = await bp.db.get()
 
-  return {
-    getOrFetchUserProfile: Promise.method((userId) => {
-      if (userProfiles[userId]) {
-        return userProfiles[userId]
-      }
+    const user = await knex('users')
+      .where({ platform: 'facebook', 'userId': userId })
+      .then().get(0).then()
 
-      return messenger.getUserProfile(userId)
-      .then((profile) => {
-        profile.id = userId
-        userProfiles[userId] = profile
-        if (new Date() - cacheTs >= 10000) {
-          saveUserProfiles(userProfiles)
-          cacheTs = new Date()
-        }
+    if (user) {
+      return dbEntryToProfile(user)
+    }
 
-        return bp.db.saveUser({
-          id: profile.id,
-          platform: 'facebook',
-          gender: profile.gender,
-          timezone: profile.timezone,
-          locale: profile.locale,
-          picture_url: profile.profile_pic,
-          first_name: profile.first_name,
-          last_name: profile.last_name
-        }).return(profile)
+    const profile = await messenger.getUserProfile(userId)
+    await bp.db.saveUser(profileToDbEntry(profile))
 
-      })
-    }),
-    getAllUsers: Promise.resolve(userProfiles)
+    return profile
   }
+
+  async function getAllUsers() {
+    const knex = await bp.db.get()
+
+    const users = await knex('users')
+      .where({ platform: 'facebook' })
+      .then()
+
+    return (users || []).map(dbEntryToProfile)
+  }
+
+  return { getOrFetchUserProfile, getAllUsers }
 }
