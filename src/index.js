@@ -79,6 +79,7 @@ const initializeMessenger = (bp, configurator) => {
     }
 
     return messenger.connect()
+    .then(() => messenger.updateSettings())
     .then(() => bp.notifications.send({
       level: 'success',
       message: 'Configuration and webhook updated'
