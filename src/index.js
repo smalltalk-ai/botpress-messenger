@@ -119,7 +119,7 @@ module.exports = {
     enabled: { type: 'bool', required: true, default: true },
     validated: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
     connected: { type: 'bool', required: false, default: false }, // deprecated --> automaticcaly reconfigure on start (config = enabled)
-    hostname: { type: 'string', required: false, default: '' },
+    hostname: { type: 'string', required: false, default: '', env: 'MESSENGER_HOST' },
     homepage: { type: 'string' },
     displayGetStarted: { type: 'bool', required: false, default: true },
     greetingMessage: { type: 'string', required: false, default: 'Default greeting message' },
