@@ -177,9 +177,17 @@ module.exports = {
         return fn && fn(msg, promise)
       }
 
+      const deprecate = fn => function() {
+        return (bp.lts && bp.lts.deprecate({
+          module: 'botpress-messenger',
+          message: 'create___ and send___ methods have been deprecated in favor of UMM and will be officially removed in an upcoming major version',
+          referenceUrl: 'https://botpress.io/docs/foundamentals/umm.html'
+        }, fn)) || fn
+      }
+
       var sendName = name.replace(/^create/, 'send')
-      bp.messenger[sendName] = Promise.method(applyFn((msg, promise) => bp.middlewares.sendOutgoing(msg) && promise))
-      bp.messenger[name] = applyFn(msg => msg)
+      bp.messenger[sendName] = deprecate(Promise.method(applyFn((msg, promise) => bp.middlewares.sendOutgoing(msg) && promise)))
+      bp.messenger[name] = deprecate(applyFn(msg => msg))
     })
 
     createConfigFile(bp)
