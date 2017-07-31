@@ -238,11 +238,11 @@ module.exports = {
       })
 
       router.get('/users', (req, res)=> {
-        users.getAllUsers
-          .then((values) => {
-            res.send(values)
-          })
-          .catch((err) => res.status.send(500).send({ message:err.message }))
+        users.getAllUsers()
+        .then((values) => {
+          res.send(values)
+        })
+        .catch((err) => res.status.send(500).send({ message:err.message }))
       })
 
       router.post('/remove_payment_tester', (req, res) => {
