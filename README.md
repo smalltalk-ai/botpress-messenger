@@ -369,7 +369,7 @@ Same signature as `Image` above.
 
 ### Outgoing
 
-By using our module, you can send anything you want to your users on Messenger. In fact, this module support all types of messenge that are available on Facebook (text, images, videos, audios, webviews...).
+By using our module, you can send anything you want to your users on Messenger. In fact, this module support all types of messages that are available on Facebook (text, images, videos, audios, webviews...).
 
 #### Creating actions without sending them
 
