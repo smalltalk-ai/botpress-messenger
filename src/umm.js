@@ -59,11 +59,11 @@ function amendButtons(obj, blocName) {
 }
 
 function getUserId(event) {
-  const userId = _.get(event, 'user.id')
-    || _.get(event, 'user.userId')
+  const userId = _.get(event, 'user.userId')
+    || _.get(event, 'raw.userId')
     || _.get(event, 'userId')
     || _.get(event, 'raw.from')
-    || _.get(event, 'raw.userId')
+    || _.get(event, 'user.id')
     || _.get(event, 'raw.user.id')
 
   if (!userId) {
