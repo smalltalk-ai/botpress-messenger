@@ -160,7 +160,15 @@ module.exports = (bp, messenger) => {
   })
 
   messenger.on('account_linking', () => {
-    bp.logger.warn('[messenger] ACCOUNT_LINKING NOT IMPLEMENTED, Your pull requests are welcome :)')
+      preprocessEvent(e).then(function (profile) {
+          bp.middlewares.sendIncoming({
+              platform: 'facebook',
+              type: 'account_linking',
+              user: profile,
+              text: e.account_linking.authorization_code,
+              raw: e
+          });
+      });
   })
 
   messenger.on('optin', e => {
