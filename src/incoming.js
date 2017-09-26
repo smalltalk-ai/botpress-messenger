@@ -14,7 +14,7 @@ module.exports = (bp, messenger) => {
   })
 
   const preprocessEvent = payload => {
-    const userId = payload.sender.id
+    const userId = payload.sender && payload.sender.id
     const mid = payload.message && payload.message.mid
 
     if (mid && !messagesCache.has(mid)) {
