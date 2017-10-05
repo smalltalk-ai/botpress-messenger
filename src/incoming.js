@@ -160,15 +160,16 @@ module.exports = (bp, messenger) => {
   })
 
   messenger.on('account_linking', () => {
-      preprocessEvent(e).then(function (profile) {
+      preprocessEvent(e)
+        .then(profile => {
           bp.middlewares.sendIncoming({
               platform: 'facebook',
               type: 'account_linking',
               user: profile,
               text: e.account_linking.authorization_code,
               raw: e
-          });
-      });
+          })
+      })
   })
 
   messenger.on('optin', e => {
