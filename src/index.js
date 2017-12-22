@@ -9,6 +9,7 @@ import _ from 'lodash'
 import uuid from 'uuid'
 import Promise from 'bluebird'
 
+import BotpressModule from './module'
 import Messenger from './messenger'
 import actions from './actions'
 import outgoing from './outgoing'
@@ -140,9 +141,9 @@ module.exports = {
     chatExtensionHomeUrl: { type: 'string', required: false, default: '' },
     chatExtensionInTest: { type: 'bool', required: false, default: true },
     chatExtensionShowShareButton: { type: 'bool', required: false, default: false },
-    webhookSubscriptionFields: { 
-      type: 'any', 
-      required: true, 
+    webhookSubscriptionFields: {
+      type: 'any',
+      required: true,
       default: [
         'message_deliveries',
         'message_reads',
@@ -158,6 +159,8 @@ module.exports = {
 
     checkVersion(bp, __dirname)
 
+    bp.messenger = new BotpressModule()
+
     bp.middlewares.register({
       name: 'messenger.sendMessages',
       type: 'outgoing',
@@ -168,7 +171,6 @@ module.exports = {
       ' This middleware should be placed at the end as it swallows events once sent.'
     })
 
-    bp.messenger = {}
     _.forIn(actions, (action, name) => {
 
       const applyFn = fn => function() {

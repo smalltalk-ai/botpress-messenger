@@ -540,8 +540,8 @@ class Messenger extends EventEmitter {
 
   _handleEvent(type, event) {
     this.emit(type, event)
-    // bubble up event to botpress.events
-    this.bp.events.emit(`messenger.${type}`, event)
+    // bubble up event to botpress.messenger module
+    this.bp.messenger.emit(type, event)
   }
 
   _handleMessageEvent(event) {
