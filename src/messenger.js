@@ -303,7 +303,15 @@ class Messenger extends EventEmitter {
 
     const url = `https://graph.facebook.com/v2.6/me/messenger_profile?access_token=${this.config.accessToken}`
 
-    await fetch(url, { method: 'DELETE', headers: { 'Content-Type': 'application/json' } })
+    await fetch(url, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fields: [
+          'whitelisted_domains'
+        ]
+      })
+    })
     .then(this._handleFacebookResponse)
 
     if (domains.length === 0) {
@@ -314,9 +322,7 @@ class Messenger extends EventEmitter {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        setting_type: 'domain_whitelisting',
-        whitelisted_domains: domains,
-        domain_action_type: 'add'
+        whitelisted_domains: domains
       })
     })
     .then(this._handleFacebookResponse)
