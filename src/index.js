@@ -16,7 +16,7 @@ import incoming from './incoming'
 import Users from './users'
 import UMM from './umm'
 
-import configTemplate from 'raw!./botpress-messenger.config.yml'
+import configTemplate from 'raw-loader!./botpress-messenger.config.yml'
 
 let messenger = null
 const outgoingPending = outgoing.pending
