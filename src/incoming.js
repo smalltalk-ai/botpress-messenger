@@ -14,7 +14,7 @@ module.exports = (bp, messenger) => {
   })
 
   const preprocessEvent = payload => {
-    const userId = payload.sender.id
+    const userId = payload.sender && payload.sender.id
     const mid = payload.message && payload.message.mid
 
     if (mid && !messagesCache.has(mid)) {
@@ -160,7 +160,16 @@ module.exports = (bp, messenger) => {
   })
 
   messenger.on('account_linking', () => {
-    bp.logger.warn('[messenger] ACCOUNT_LINKING NOT IMPLEMENTED, Your pull requests are welcome :)')
+      preprocessEvent(e)
+        .then(profile => {
+          bp.middlewares.sendIncoming({
+              platform: 'facebook',
+              type: 'account_linking',
+              user: profile,
+              text: e.account_linking.authorization_code,
+              raw: e
+          })
+      })
   })
 
   messenger.on('optin', e => {
