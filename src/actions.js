@@ -35,8 +35,8 @@ const validateUserId = (userId) => {
 }
 
 const validateText = (text) => {
-  if (typeof(text) !== 'string' || text.length > 300) {
-    throw new Error('Text must be a string less than 300 chars.')
+  if (typeof(text) !== 'string' || text.length > 640) {
+    throw new Error('Text must be a string less than 640 chars.')
   }
 }
 
