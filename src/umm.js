@@ -59,15 +59,19 @@ function amendButtons(obj, blocName) {
 }
 
 function getUserId(event) {
-  const userId = _.get(event, 'user.id')
-    || _.get(event, 'user.userId')
+  let userId = _.get(event, 'user.userId')
+    || _.get(event, 'raw.userId')
     || _.get(event, 'userId')
     || _.get(event, 'raw.from')
-    || _.get(event, 'raw.userId')
+    || _.get(event, 'user.id')
     || _.get(event, 'raw.user.id')
 
   if (!userId) {
     throw new Error('Could not find userId in the incoming event.')
+  }
+
+  if (userId.startsWith('facebook:')) {
+    return userId.substr('facebook:'.length)
   }
 
   return userId

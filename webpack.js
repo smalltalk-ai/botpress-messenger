@@ -1,12 +1,13 @@
-var webpack = require('webpack')
-var nodeExternals = require('webpack-node-externals')
-var pkg = require('./package.json')
+const webpack = require('webpack')
+const nodeExternals = require('webpack-node-externals')
+const pkg = require('./package.json')
+const path = require('path')
 
-var nodeConfig = {
+const nodeConfig = {
   devtool: 'source-map',
   entry: ['./src/index.js'],
   output: {
-    path: './bin',
+    path: path.resolve(__dirname, './bin'),
     filename: 'node.bundle.js',
     libraryTarget: 'commonjs2',
     publicPath: __dirname
@@ -17,68 +18,79 @@ var nodeConfig = {
     __dirname: false
   },
   resolve: {
-    extensions: ['', '.js']
+    extensions: ['.js']
   },
   module: {
-    loaders: [{
+    rules: [{
       test: /\.js$/,
-      loader: 'babel-loader',
+      use: {
+        loader: 'babel-loader',
+        query: {
+          presets: ['latest', 'stage-0'],
+          plugins: ['transform-object-rest-spread']
+        }
+      },
       exclude: /node_modules/,
-      query: {
-        presets: ['latest', 'stage-0'],
-        plugins: ['transform-object-rest-spread']
-      }
-    }, {
-      test: /\.json$/,
-      loader: 'json-loader'
+      
     }]
   }
 }
 
-var webConfig = {
+const webConfig = {
   devtool: 'source-map',
   entry: ['./src/views/index.jsx'],
   output: {
-    path: './bin',
+    path: path.resolve(__dirname, './bin'),
     publicPath: '/js/modules/',
     filename: 'web.bundle.js',
     libraryTarget: 'assign',
     library: ['botpress', pkg.name]
   },
-   externals: {
+  externals: {
     'react': 'React',
     'react-dom': 'ReactDOM'
   },
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: ['.js', '.jsx']
   },
   module: {
-    loaders: [{
+    rules: [{
       test: /\.jsx?$/,
-      loader: 'babel-loader',
+      use: {
+        loader: 'babel-loader',
+        query: {
+          presets: ['latest', 'stage-0', 'react'],
+          plugins: ['transform-object-rest-spread', 'transform-decorators-legacy']
+        }
+      },
       exclude: /node_modules/,
-      query: {
-        presets: ['latest', 'stage-0', 'react'],
-        plugins: ['transform-object-rest-spread', 'transform-decorators-legacy']
-      }
+      
     }, {
       test: /\.scss$/,
-      loaders: ['style', 'css?modules&importLoaders=1&localIdentName=' + pkg.name + '__[name]__[local]___[hash:base64:5]', 'sass']
+      use: [
+        { loader: 'style-loader' },
+        {
+          loader: 'css-loader',
+          query: {
+            modules: true,
+            importLoaders: 1,
+            localIdentName: pkg.name + '__[name]__[local]___[hash:base64:5]',
+          }
+        },
+        { loader: 'sass-loader' }
+      ]
     }, {
       test: /\.css$/,
-      loaders: ['style', 'css']
+      use: [ { loader: 'style-loader' }, { loader: 'css-loader' }]
     }, {
       test: /\.woff|\.woff2|\.svg|.eot|\.ttf/,
-      loader: 'file?name=../fonts/[name].[ext]'
-    }, {
-      test: /\.json$/,
-      loader: 'json-loader'
+      use: { loader: 'file-loader', query: { name: '../fonts/[name].[ext]' } }
     }]
   }
 }
 
-var compiler = webpack([nodeConfig, webConfig])
-var postProcess = function(err, stats) {
+const compiler = webpack([nodeConfig, webConfig])
+const postProcess = function(err, stats) {
   if (err) throw err
   console.log(stats.toString('minimal'))
 }
