@@ -53,10 +53,10 @@ const outgoingMiddleware = (event, next) => {
   .then(setValue('resolve'), setValue('reject'))
 }
 
-const initializeMessenger = (bp, configurator) => {
+const initializeMessenger = (bp, configurator, helpers) => {
   return configurator.loadAll()
   .then(config => {
-    messenger = new Messenger(bp, config)
+    messenger = new Messenger(bp, config, helpers)
 
     users = Users(bp, messenger)
 
@@ -140,9 +140,9 @@ module.exports = {
     chatExtensionHomeUrl: { type: 'string', required: false, default: '' },
     chatExtensionInTest: { type: 'bool', required: false, default: true },
     chatExtensionShowShareButton: { type: 'bool', required: false, default: false },
-    webhookSubscriptionFields: { 
-      type: 'any', 
-      required: true, 
+    webhookSubscriptionFields: {
+      type: 'any',
+      required: true,
       default: [
         'message_deliveries',
         'message_reads',
@@ -194,8 +194,8 @@ module.exports = {
     UMM(bp) // Initializes Messenger in the UMM
   },
 
-  ready: function(bp, config) {
-    initializeMessenger(bp, config)
+  ready: function(bp, config, helpers) {
+    initializeMessenger(bp, config, helpers)
     .then(() => {
       incoming(bp, messenger)
 

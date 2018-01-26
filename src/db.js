@@ -1,13 +1,11 @@
-import { DatabaseHelpers } from 'botpress'
-
 var knex = null
 
-function initialize() {
+function initialize(helpers) {
   if (!knex) {
     throw new Error('you must initialize the database before')
   }
-  
-  return DatabaseHelpers(knex).createTableIfNotExists('messenger_attachments', function (table) {
+
+  return helpers.database(knex).createTableIfNotExists('messenger_attachments', function (table) {
     table.string('url').primary()
     table.string('attachment_id')
   }).then()

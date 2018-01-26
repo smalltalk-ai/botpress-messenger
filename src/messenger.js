@@ -24,7 +24,7 @@ const normalizeString = function(str) {
 let db = null
 
 class Messenger extends EventEmitter {
-  constructor(bp, config) {
+  constructor(bp, config, helpers) {
     super()
     if (!bp || !config) {
       throw new Error('You need to specify botpress and config')
@@ -36,7 +36,7 @@ class Messenger extends EventEmitter {
     bp.db.get()
     .then(k => {
       db = DB(k)
-      db.initialize()
+      db.initialize(helpers)
     })
 
     this.app = bp.getRouter('botpress-messenger', {
